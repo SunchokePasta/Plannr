@@ -65,5 +65,10 @@ The pipeline has two entry points, link and image, instead of an `ImageRetriever
 ## D16 · `SourceUrl` is nullable · review
 A screenshot has no URL, so `RetrievedContent.SourceUrl` (and `CardDraft.SourceUrl` in change 6) are `Uri?`. The `ActivityCards.SourceUrl` column will need to be nullable too.
 
+## D17 · Refit 16 source-generated client (`AddRefitGeneratedClient`) · review
+- **Found:** Refit 16 no longer builds clients by reflection unless you add `Refit.Reflection`; Applr's `AddRefitClient` pattern fails at runtime with `NotSupportedException`.
+- **Chosen:** the generated client (request code written at build time). Alternative: add `Refit.Reflection` and keep Applr's call.
+- **Also found:** the global `ConfigureHttpClientDefaults` hook doesn't reach this client, because Refit sets its own primary handler. My first test using it **sent one request to the real Groq API** with the dummy key `test-key` (401; no real key, only a sample prompt). Fixed by an explicit `configureClient` parameter on `AddPlannrLlm`; the test now provably goes through a stub. CI (change 9) should consider blocking outbound network for unit tests.
+
 ## D13 · ⚠️ Groq key exposed in Applr's git history · action for you
 `Applr/src/Applr.API/appsettings.Development.json` is tracked in git and holds a Groq key; the repo has a GitHub remote. **Revoke that key in the Groq console** and create a new one for Plannr (stored with `dotnet user-secrets`, see `docs/progress.md`).

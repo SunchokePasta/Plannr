@@ -19,10 +19,14 @@ reference findable in the log; GitHub Actions runs the tests on every push.
 | 4b | `3913f7d` | `HtmlContentParser` (OG, Event + Place JSON-LD, body text), `RetrievalOptions` |
 | 4c | `79ca854` | `HttpPageFetcher`, `PublicAddressGuard` (SSRF), `WebPageRetriever`, `AddPlannrRetrieval` |
 | 4d | `2a114ce` | `PlaywrightPageFetcher` + JS-shell fallback |
+| 5a | `3a2fd34` | `GroqOptions`, Groq chat DTOs (incl. image parts), Refit `IGroqApi`; these docs |
+| 5b | `20abd8b` | `ExtractionPrompt`, `ActivityCategories`; `RetrievedContent.SourceUrl` nullable |
+| 5c | `4e6b9cd` | `GroqLlmExtractor` (429/json_validate_failed/401 handling), `LlmAnswerParser`, `UkTime` |
+| 5d | (this commit) | `AddPlannrLlm` with Refit 16 generated client; test through real Refit + stub |
 
 ## In progress / left
 
-- [ ] 5 Groq extractor
+- [x] 5 Groq extractor (**not yet run against real Groq**: needs your key)
 - [ ] 6 JSON-LD mapper, normaliser, pipeline
 - [ ] 7 Eval host and commands
 - [ ] 8 Fixture-based tests
