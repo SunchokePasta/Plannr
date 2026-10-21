@@ -23,6 +23,7 @@
     <ProjectReference Include="..\..\src\Plannr.Core\Plannr.Core.csproj" />
     <ProjectReference Include="..\..\src\Plannr.Infrastructure\Plannr.Infrastructure.csproj" />
     <ProjectReference Include="..\..\src\Plannr.Api\Plannr.Api.csproj" />
+    <ProjectReference Include="..\..\src\Plannr.Eval\Plannr.Eval.csproj" />
   </ItemGroup>
 
 </Project>

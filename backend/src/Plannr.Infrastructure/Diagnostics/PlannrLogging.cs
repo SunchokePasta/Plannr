@@ -19,9 +19,15 @@ public static class PlannrLogging
 
     public const int RetainedLogFiles = 14;
 
+    /// <param name="consoleToStandardError">
+    /// Console lines go to stderr instead of stdout. For command-line tools
+    /// whose real output is on stdout (Eval prints a card as JSON), so the
+    /// two can be separated: <c>Plannr.Eval extract &lt;url&gt; &gt; card.json</c>.
+    /// </param>
     public static LoggerConfiguration UsePlannrDefaults(
         this LoggerConfiguration configuration,
-        string logDirectory)
+        string logDirectory,
+        bool consoleToStandardError = false)
     {
         Directory.CreateDirectory(logDirectory);
 
@@ -43,7 +49,9 @@ public static class PlannrLogging
             .MinimumLevel.Override("System.Net.Http.HttpClient", LogEventLevel.Information)
 
             .Enrich.FromLogContext()
-            .WriteTo.Console(outputTemplate: LogTemplate)
+            .WriteTo.Console(
+                outputTemplate: LogTemplate,
+                standardErrorFromLevel: consoleToStandardError ? LogEventLevel.Verbose : null)
             .WriteTo.File(
                 Path.Combine(logDirectory, "log-.txt"),
                 rollingInterval: RollingInterval.Day,
