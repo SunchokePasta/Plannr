@@ -52,5 +52,18 @@ The pipeline has two entry points, link and image, instead of an `ImageRetriever
 - **Cost:** the API's build output contains the Playwright library (not the browser). Harmless now.
 - **Plan:** when the Worker arrives, consider splitting scraping into `Plannr.Infrastructure.Scraping` so the API's Docker image stays small.
 
+## D14 · Refit instead of the OpenAI .NET SDK for Groq · review
+- **Spec/plan said:** check whether the OpenAI SDK works against Groq with a base-URL change.
+- **Chosen:** Refit, as in Applr. Applr already proves it works against Groq, and Refit's `ApiException` exposes what the extractor needs: status code, the `json_validate_failed` body, and `Retry-After` on 429s. The SDK hides those.
+- **Cost:** request/response DTOs are ours to maintain (small; ported from Applr).
+
+## D15 · One shared prompt; fixed category list; anti-injection line · review
+- **One prompt for every source type**, so G3 compares link types, not prompts. If a type does badly, per-type hints could be added later; that would need re-measuring all types.
+- **Fixed categories** (`ActivityCategories`): music, nightlife, food-drink, markets, arts-culture, comedy, film-tv, sports-fitness, outdoors, workshops-classes, community, other. My choice, not from the spec or the requirements survey; revisit after P2.
+- **Prompt injection:** shared pages are written by strangers. The system message tells the model to treat content as information, never instructions. That reduces, but doesn't eliminate, the risk; the worst case is a wrong card the user can edit, since the model's answer is only ever parsed as data.
+
+## D16 · `SourceUrl` is nullable · review
+A screenshot has no URL, so `RetrievedContent.SourceUrl` (and `CardDraft.SourceUrl` in change 6) are `Uri?`. The `ActivityCards.SourceUrl` column will need to be nullable too.
+
 ## D13 · ⚠️ Groq key exposed in Applr's git history · action for you
 `Applr/src/Applr.API/appsettings.Development.json` is tracked in git and holds a Groq key; the repo has a GitHub remote. **Revoke that key in the Groq console** and create a new one for Plannr (stored with `dotnet user-secrets`, see `docs/progress.md`).

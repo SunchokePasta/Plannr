@@ -10,8 +10,11 @@ namespace Plannr.Core.Capture;
 /// </summary>
 public sealed record RetrievedContent
 {
-    /// <summary>Where the content came from, after following redirects (TikTok short links).</summary>
-    public required Uri SourceUrl { get; init; }
+    /// <summary>
+    /// Where the content came from, after following redirects (TikTok short
+    /// links). Null for a screenshot: it was uploaded, so it has no address.
+    /// </summary>
+    public required Uri? SourceUrl { get; init; }
 
     public required SourceType SourceType { get; init; }
 
