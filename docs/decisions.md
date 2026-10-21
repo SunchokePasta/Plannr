@@ -85,5 +85,12 @@ A screenshot has no URL, so `RetrievedContent.SourceUrl` (and `CardDraft.SourceU
 - "Free before 10pm, £5 after" → £0–£5.
 - A number with no currency anywhere is assumed GBP **and flagged** (`CurrencyAssumed`).
 
+## D21 · Which fields get flagged, and when · review
+- **Missing** is only raised for the fields a plan needs: **title, start, place, price**. Description, end, address and category are often legitimately absent (a hobby, a park), and flagging them would bury the flags that matter.
+- **Uncertain** below confidence **0.6** (`Extraction:FlagBelowConfidence`). A field the LLM gave without a confidence counts as **0.5**, so it's flagged.
+- **A start date in the past** is flagged Uncertain (an expired listing, or the LLM guessed the wrong year). Note: saved data-pool pages will often be past by the time they're evaluated, which adds flags but doesn't change G3's "fully correct" scoring.
+- **Page `<title>` standing in for a title** is flagged (it's often "Event | Venue | Tickets").
+- **A price over £2,000** is treated as a misread (`Invalid`).
+
 ## D13 · ⚠️ Groq key exposed in Applr's git history · action for you
 `Applr/src/Applr.API/appsettings.Development.json` is tracked in git and holds a Groq key; the repo has a GitHub remote. **Revoke that key in the Groq console** and create a new one for Plannr (stored with `dotnet user-secrets`, see `docs/progress.md`).
