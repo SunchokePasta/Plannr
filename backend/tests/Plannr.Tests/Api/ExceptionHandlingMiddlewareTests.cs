@@ -131,6 +131,17 @@ public sealed class ExceptionHandlingMiddlewareTests : IDisposable
     }
 
     [Fact]
+    public async Task InstagramLink_Gives400WithTheScreenshotSuggestion()
+    {
+        var context = NewContext();
+
+        await Run(context, _ => throw new InstagramNotSupportedException("instagram.com/p/abc"));
+
+        Assert.Equal(StatusCodes.Status400BadRequest, context.Response.StatusCode);
+        Assert.Contains("screenshot", ReadBody(context).Message);
+    }
+
+    [Fact]
     public async Task UploadTooLarge_Gives413()
     {
         var context = NewContext();
