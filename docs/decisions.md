@@ -120,5 +120,12 @@ A screenshot has no URL, so `RetrievedContent.SourceUrl` (and `CardDraft.SourceU
 ## D28 · Eventbrite's `lowPrice: "0.0"` · to check in the data pool
 The live Eventbrite page (21 Oct) had an AggregateOffer from `"0.0"` to `"79.0"`, so the card says £0–£79. That's either a real free tier or Eventbrite's default for the low end. If the data pool shows the latter is common, the mapper should treat a `0.0` low price beside a non-zero high price as unknown.
 
+## D29 · Groq waits: Applr's JobAnalyser rules, with a ceiling per program · agreed
+- **Ported from `CvOptimiser/JobAnalyser.py`:** a 429's wait comes from `Retry-After`, else Groq's message ("try again in 1m30s"), else one minute; daily (TPD/RPD) and per-minute limits are told apart; network failures, our timeout and 5xx are retried with growing waits; a 404 for the model is a setup error naming `Groq:TextModel`/`VisionModel`.
+- **Different from JobAnalyser:** it waits until a stop time; Plannr has a ceiling, `Groq:MaxRateLimitWaitSeconds`. A known wait over it fails at once with when the limit resets.
+  - Default **30 s**, 5 s/10 s/15 s transient retries: for the Worker, where a person is waiting for a card.
+  - **Eval: 900 s (15 min), 10 rate-limit waits, 15 s/30 s/45 s retries** (`src/Plannr.Eval/appsettings.json`): data-pool runs have nobody waiting, like JobAnalyser's overnight runs.
+- **Found while doing it:** retry waits on a fake clock hang a test forever unless something moves the clock; the extractor tests now drive it through a helper that *fails* after a simulated limit instead of hanging. Also: Plannr.Api and Plannr.Eval both copy an `appsettings.json` into the test output, one overwriting the other; a test reading Eval's settings now reads its source file.
+
 ## D13 · Secrets never live in tracked files · agreed
 This repo is public. Keys and passwords go in `dotnet user-secrets` locally (stored in the user profile, outside the repo) and in SSM Parameter Store on AWS, never in a committed file. `.gitignore` also ignores every `appsettings.Development.json` and `appsettings.*.local.json` as a safety net. Test code uses obviously fake values that don't look like real key formats (so secret scanners don't false-alarm).

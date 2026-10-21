@@ -8,8 +8,8 @@ context runs out. Decisions worth reviewing are in `docs/decisions.md`.
 prints a validated card with uncertainty flags; failures print an error
 reference findable in the log; GitHub Actions runs the tests on every push.
 
-**State on 21 Oct 2026:** changes 1-8 done and committed (nothing pushed). 268 tests pass
-(263 unit + 5 real-Chromium integration). Change 9 (CI) is next, to be built together.
+**State on 21 Oct 2026:** changes 1-8 (+5e) done and committed (nothing pushed). 298 tests pass
+(293 unit + 5 real-Chromium integration). Change 9 (CI) in progress, built together: 9a done.
 
 ## Done
 
@@ -33,7 +33,9 @@ reference findable in the log; GitHub Actions runs the tests on every push.
 | 7b | `ad09fcf` | `extract <url>` / `extract --image`; address-repeat and log-format fixes found on a live page |
 | 7c | `8cee99b` | `models` command; root `README.md` |
 | 8a | `fa94a1d` | Eight synthetic fixture pages + parser/mapper tests over them |
-| 8b | (this commit) | Whole-pipeline tests over the fixtures (fake network + LLM only) |
+| 8b | `3b49bb3` | Whole-pipeline tests over the fixtures (fake network + LLM only) |
+| 9a | `b834426` | Pre-push clean-up for the public repo (D13 rewritten, fake key renamed) |
+| 5e | (this commit) | Groq waits brought up to Applr's JobAnalyser rules; Eval waits up to 15 min (D29) |
 
 **Verified live (21 Oct):** `extract` on a real Eventbrite event produced a correct card in ~0.6 s
 from JSON-LD alone (Groq skipped, dummy key). The no-key error path prints the setting name and

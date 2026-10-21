@@ -68,8 +68,38 @@ public sealed class GroqLlmExtractorTests
             throw await ApiException.Create(request, HttpMethod.Post, response, new RefitSettings());
         };
 
+    /// <summary>Groq's real 429 wording, with the limit and wait it names.</summary>
+    private static string RateLimitBody(string limit, string wait) =>
+        $$$"""{"error":{"message":"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_test` service tier `on_demand` on {{{limit}}}: Limit 6000, Used 5900, Requested 900. Please try again in {{{wait}}}. Need more tokens? Upgrade to Dev Tier.","type":"tokens","code":"rate_limit_exceeded"}}""";
+
     private GroqLlmExtractor Extractor(FakeGroqApi api, GroqOptions? options = null) =>
         new(api, options ?? new GroqOptions { ApiKey = "fake-secret-value-for-tests", VisionModel = "vision-model" }, _time, _logger);
+
+    /// <summary>
+    /// Runs an extraction that waits on the fake clock, moving the clock on
+    /// until it finishes. Capped, so a retry bug fails the test instead of
+    /// hanging the run forever (which in CI means until GitHub's 6-hour limit).
+    /// </summary>
+    private async Task<T> OnFakeClock<T>(Task<T> extraction, int stepSeconds = 1, int maxSteps = 2000)
+    {
+        for (var step = 0; !extraction.IsCompleted; step++)
+        {
+            if (step == maxSteps)
+            {
+                Assert.Fail($"Still running after {maxSteps * stepSeconds} simulated seconds: a wait that never ends?");
+            }
+
+            _time.Advance(TimeSpan.FromSeconds(stepSeconds));
+            await Task.Delay(2);
+        }
+
+        return await extraction;
+    }
+
+    private Task<LlmCardFields> ExtractOnFakeClock(FakeGroqApi api, GroqOptions? options = null, int stepSeconds = 1) =>
+        OnFakeClock(Extractor(api, options).ExtractAsync(WebPage), stepSeconds);
+
+    private bool Logged(string text) => _logger.Collector.GetSnapshot().Any(r => r.Message.Contains(text));
 
     [Fact]
     public async Task AGoodAnswer_IsParsedAndLoggedOnce()
@@ -83,7 +113,7 @@ public sealed class GroqLlmExtractorTests
         Assert.Equal("qwen/qwen3.8-27b", request.Model);
         Assert.Equal("none", request.ReasoningEffort);
         Assert.Equal(0, request.Temperature);
-        Assert.Contains(_logger.Collector.GetSnapshot(), r => r.Message.Contains("900 prompt + 60 completion tokens"));
+        Assert.True(Logged("900 prompt + 60 completion tokens"));
     }
 
     [Fact]
@@ -121,24 +151,81 @@ public sealed class GroqLlmExtractorTests
         Assert.Empty(api.Requests);
     }
 
+    // --- Rate limits (429) --------------------------------------------------
+
     [Fact]
-    public async Task ARateLimit_IsWaitedOutThenRetried()
+    public async Task ARateLimit_IsWaitedOutUsingRetryAfter()
     {
         var api = new FakeGroqApi(Fail(HttpStatusCode.TooManyRequests, retryAfter: TimeSpan.FromSeconds(7)), Answer(GoodAnswer));
 
-        var extraction = Extractor(api).ExtractAsync(WebPage);
+        var fields = await ExtractOnFakeClock(api);
 
-        // The extractor is now waiting on the fake clock; move it past Retry-After.
-        while (!extraction.IsCompleted)
-        {
-            _time.Advance(TimeSpan.FromSeconds(1));
-            await Task.Delay(5);
-        }
-
-        var fields = await extraction;
         Assert.Equal("Thrift Market", fields.Title!.Value);
         Assert.Equal(2, api.Requests.Count);
-        Assert.Contains(_logger.Collector.GetSnapshot(), r => r.Message.Contains("waiting 7s"));
+        Assert.True(Logged("per-minute limit reached"));
+        Assert.True(Logged("waiting 7s"));
+    }
+
+    [Fact]
+    public async Task WithoutRetryAfter_TheWaitInGroqsMessageIsUsed()
+    {
+        var api = new FakeGroqApi(
+            Fail(HttpStatusCode.TooManyRequests, RateLimitBody("tokens per minute (TPM)", "7.5s")),
+            Answer(GoodAnswer));
+
+        await ExtractOnFakeClock(api);
+
+        Assert.True(Logged("waiting 7.5s"));
+    }
+
+    [Fact]
+    public async Task WithNoWaitGivenAtAll_AMinuteIsAssumedWithinTheCeiling()
+    {
+        var api = new FakeGroqApi(Fail(HttpStatusCode.TooManyRequests, """{"error":"slow down"}"""), Answer(GoodAnswer));
+
+        await ExtractOnFakeClock(api);
+
+        // A minute, capped by the default 30 s ceiling.
+        Assert.True(Logged("waiting 30s"));
+    }
+
+    [Fact]
+    public async Task ADailyLimit_FailsAtOnceSayingWhenItResets()
+    {
+        var api = new FakeGroqApi(Fail(HttpStatusCode.TooManyRequests, RateLimitBody("tokens per day (TPD)", "3h12m5.2s")));
+
+        var exception = await Assert.ThrowsAsync<ExtractionFailedException>(() => Extractor(api).ExtractAsync(WebPage));
+
+        Assert.Single(api.Requests);
+        Assert.Contains("daily limit", exception.Message);
+        Assert.Contains("resets in 3h 12m", exception.Message);
+        Assert.Contains("Groq:MaxRateLimitWaitSeconds", exception.Message);
+    }
+
+    [Fact]
+    public async Task APerMinuteWaitOverTheCeiling_FailsAtOnce()
+    {
+        var api = new FakeGroqApi(Fail(HttpStatusCode.TooManyRequests, RateLimitBody("tokens per minute (TPM)", "1m30s")));
+
+        var exception = await Assert.ThrowsAsync<ExtractionFailedException>(() => Extractor(api).ExtractAsync(WebPage));
+
+        Assert.Single(api.Requests);
+        Assert.Contains("per-minute limit", exception.Message);
+        Assert.Contains("1m 30s", exception.Message);
+    }
+
+    [Fact]
+    public async Task WithAHigherCeiling_LikeEval_ALongWaitIsSatThrough()
+    {
+        var api = new FakeGroqApi(
+            Fail(HttpStatusCode.TooManyRequests, RateLimitBody("tokens per minute (TPM)", "1m30s")),
+            Answer(GoodAnswer));
+
+        var fields = await ExtractOnFakeClock(
+            api, new GroqOptions { ApiKey = "k", MaxRateLimitWaitSeconds = 900 }, stepSeconds: 10);
+
+        Assert.Equal("Thrift Market", fields.Title!.Value);
+        Assert.True(Logged("waiting 1m 30s"));
     }
 
     [Fact]
@@ -146,17 +233,78 @@ public sealed class GroqLlmExtractorTests
     {
         var api = new FakeGroqApi(Fail(HttpStatusCode.TooManyRequests, retryAfter: TimeSpan.FromSeconds(1)));
 
-        var extraction = Extractor(api, new GroqOptions { ApiKey = "k", RateLimitRetries = 1 }).ExtractAsync(WebPage);
-        while (!extraction.IsCompleted)
-        {
-            _time.Advance(TimeSpan.FromSeconds(1));
-            await Task.Delay(5);
-        }
+        var exception = await Assert.ThrowsAsync<ExtractionFailedException>(() =>
+            ExtractOnFakeClock(api, new GroqOptions { ApiKey = "k", RateLimitRetries = 1 }));
 
-        var exception = await Assert.ThrowsAsync<ExtractionFailedException>(() => extraction);
-        Assert.Contains("429", exception.Message);
+        Assert.Contains("still rate limited", exception.Message);
         Assert.Equal(2, api.Requests.Count);
     }
+
+    // --- Momentary failures: 5xx, network, our timeout -----------------------
+
+    [Fact]
+    public async Task AServerError_IsRetriedWithGrowingWaits()
+    {
+        var api = new FakeGroqApi(
+            Fail(HttpStatusCode.ServiceUnavailable, """{"error":"overloaded"}"""),
+            Fail(HttpStatusCode.BadGateway),
+            Answer(GoodAnswer));
+
+        var fields = await ExtractOnFakeClock(api);
+
+        Assert.Equal("Thrift Market", fields.Title!.Value);
+        Assert.Equal(3, api.Requests.Count);
+        Assert.True(Logged("retrying in 5s (retry 1 of 3)"));
+        Assert.True(Logged("retrying in 10s (retry 2 of 3)"));
+    }
+
+    [Fact]
+    public async Task AServerErrorThatPersists_IsExtractionFailedWithGroqsExplanation()
+    {
+        var api = new FakeGroqApi(Fail(HttpStatusCode.InternalServerError, """{"error":"upstream overloaded"}"""));
+
+        var exception = await Assert.ThrowsAsync<ExtractionFailedException>(() => ExtractOnFakeClock(api));
+
+        Assert.Equal(4, api.Requests.Count);
+        Assert.Contains("500", exception.Message);
+        Assert.Contains("upstream overloaded", exception.Message);
+        Assert.Contains("tried 4 times", exception.Message);
+    }
+
+    [Fact]
+    public async Task ANetworkFailure_IsRetried()
+    {
+        var api = new FakeGroqApi(_ => throw new HttpRequestException("Connection reset"), Answer(GoodAnswer));
+
+        await ExtractOnFakeClock(api);
+
+        Assert.Equal(2, api.Requests.Count);
+        Assert.True(Logged("Groq couldn't be reached: Connection reset; retrying in 5s"));
+    }
+
+    [Fact]
+    public async Task OurOwnTimeout_IsRetriedThenFails()
+    {
+        var api = new FakeGroqApi(_ => throw new TaskCanceledException("HttpClient.Timeout"));
+
+        var exception = await Assert.ThrowsAsync<ExtractionFailedException>(() => ExtractOnFakeClock(api));
+
+        Assert.Contains("didn't answer within 60s", exception.Message);
+        Assert.Equal(4, api.Requests.Count);
+    }
+
+    [Fact]
+    public async Task WithNoTransientRetries_AServerErrorFailsAtOnce()
+    {
+        var api = new FakeGroqApi(Fail(HttpStatusCode.InternalServerError));
+
+        await Assert.ThrowsAsync<ExtractionFailedException>(() =>
+            Extractor(api, new GroqOptions { ApiKey = "k", TransientRetries = 0 }).ExtractAsync(WebPage));
+
+        Assert.Single(api.Requests);
+    }
+
+    // --- Everything else ------------------------------------------------------
 
     [Fact]
     public async Task AnAnswerThatFailedJsonValidation_IsRetriedOnceWithMoreRoom()
@@ -172,17 +320,6 @@ public sealed class GroqLlmExtractorTests
     }
 
     [Fact]
-    public async Task AServerError_IsExtractionFailedWithGroqsExplanation()
-    {
-        var api = new FakeGroqApi(Fail(HttpStatusCode.InternalServerError, """{"error":"upstream overloaded"}"""));
-
-        var exception = await Assert.ThrowsAsync<ExtractionFailedException>(() => Extractor(api).ExtractAsync(WebPage));
-
-        Assert.Contains("500", exception.Message);
-        Assert.Contains("upstream overloaded", exception.Message);
-    }
-
-    [Fact]
     public async Task ARejectedKey_IsASetupError()
     {
         var api = new FakeGroqApi(Fail(HttpStatusCode.Unauthorized));
@@ -190,6 +327,40 @@ public sealed class GroqLlmExtractorTests
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Extractor(api).ExtractAsync(WebPage));
 
         Assert.Contains("Groq:ApiKey", exception.Message);
+        Assert.Single(api.Requests);
+    }
+
+    [Fact]
+    public async Task ARetiredModel_IsASetupErrorNamingTheSetting()
+    {
+        var api = new FakeGroqApi(Fail(HttpStatusCode.NotFound, """{"error":{"message":"The model does not exist"}}"""));
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Extractor(api).ExtractAsync(WebPage));
+
+        Assert.Contains("'qwen/qwen3.8-27b'", exception.Message);
+        Assert.Contains("Groq:TextModel", exception.Message);
+        Assert.Single(api.Requests);
+    }
+
+    [Fact]
+    public async Task ARetiredVisionModel_NamesTheVisionSetting()
+    {
+        var api = new FakeGroqApi(Fail(HttpStatusCode.NotFound));
+
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(() => Extractor(api).ExtractAsync(Screenshot));
+
+        Assert.Contains("Groq:VisionModel", exception.Message);
+    }
+
+    [Fact]
+    public async Task AnyOther4xx_IsExtractionFailedWithoutRetrying()
+    {
+        var api = new FakeGroqApi(Fail(HttpStatusCode.RequestEntityTooLarge, """{"error":"request too large"}"""));
+
+        var exception = await Assert.ThrowsAsync<ExtractionFailedException>(() => Extractor(api).ExtractAsync(WebPage));
+
+        Assert.Contains("413", exception.Message);
+        Assert.Single(api.Requests);
     }
 
     [Theory]
@@ -206,14 +377,6 @@ public sealed class GroqLlmExtractorTests
     }
 
     [Fact]
-    public async Task OurOwnTimeout_IsExtractionFailed()
-    {
-        var api = new FakeGroqApi(_ => throw new TaskCanceledException("HttpClient.Timeout"));
-
-        await Assert.ThrowsAsync<ExtractionFailedException>(() => Extractor(api).ExtractAsync(WebPage));
-    }
-
-    [Fact]
     public async Task CallerCancelling_IsPassedThrough()
     {
         using var cancel = new CancellationTokenSource();
@@ -221,6 +384,20 @@ public sealed class GroqLlmExtractorTests
         var api = new FakeGroqApi(_ => throw new TaskCanceledException());
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => Extractor(api).ExtractAsync(WebPage, cancel.Token));
+        Assert.Single(api.Requests);
+    }
+
+    [Fact]
+    public async Task CallerCancellingDuringAWait_StopsTheWait()
+    {
+        using var cancel = new CancellationTokenSource();
+        var api = new FakeGroqApi(Fail(HttpStatusCode.TooManyRequests, retryAfter: TimeSpan.FromSeconds(20)));
+
+        var extraction = Extractor(api).ExtractAsync(WebPage, cancel.Token);
+        await cancel.CancelAsync();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => extraction);
+        Assert.Single(api.Requests);
     }
 
     [Fact]
@@ -228,14 +405,8 @@ public sealed class GroqLlmExtractorTests
     {
         var api = new FakeGroqApi(Fail(HttpStatusCode.TooManyRequests, retryAfter: TimeSpan.FromSeconds(1)), Answer(GoodAnswer));
 
-        var extraction = Extractor(api).ExtractAsync(WebPage);
-        while (!extraction.IsCompleted)
-        {
-            _time.Advance(TimeSpan.FromSeconds(1));
-            await Task.Delay(5);
-        }
+        await ExtractOnFakeClock(api);
 
-        await extraction;
-        Assert.DoesNotContain(_logger.Collector.GetSnapshot(), r => r.Message.Contains("fake-secret-value-for-tests"));
+        Assert.False(Logged("fake-secret-value-for-tests"));
     }
 }

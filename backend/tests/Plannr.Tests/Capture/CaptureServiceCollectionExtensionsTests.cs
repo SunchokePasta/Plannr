@@ -26,6 +26,30 @@ public sealed class CaptureServiceCollectionExtensionsTests
     }
 
     [Fact]
+    public void EvalsSettings_WaitLongerThanTheDefaults()
+    {
+        // Eval's own file, from its source folder. Not the copy beside the test
+        // DLL: Plannr.Api and Plannr.Eval both copy an "appsettings.json" there,
+        // and whichever is copied last wins.
+        var backend = new DirectoryInfo(AppContext.BaseDirectory);
+        while (!File.Exists(Path.Combine(backend.FullName, "Plannr.slnx")))
+        {
+            backend = backend.Parent ?? throw new InvalidOperationException("Plannr.slnx not found above the test output.");
+        }
+
+        var config = new ConfigurationBuilder()
+            .AddJsonFile(Path.Combine(backend.FullName, "src", "Plannr.Eval", "appsettings.json"), optional: false)
+            .AddInMemoryCollection([new KeyValuePair<string, string?>("Groq:ApiKey", "k")])
+            .Build();
+
+        var groq = Plannr.Infrastructure.Options.ConfigurationExtensions
+            .GetValidated<Plannr.Infrastructure.Options.GroqOptions>(config, "Groq");
+
+        Assert.Equal(900, groq.MaxRateLimitWaitSeconds);
+        Assert.True(groq.MaxRateLimitWaitSeconds > new Plannr.Infrastructure.Options.GroqOptions().MaxRateLimitWaitSeconds);
+    }
+
+    [Fact]
     public void AddPlannrCapture_WithoutAGroqKey_RefusesToRegister()
     {
         var exception = Assert.Throws<InvalidOperationException>(() =>

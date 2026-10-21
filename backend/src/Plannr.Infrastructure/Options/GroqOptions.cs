@@ -51,8 +51,25 @@ public sealed class GroqOptions : AppOptionsBase
     /// <summary>How many times a 429 (rate limited) is waited out before giving up.</summary>
     public int RateLimitRetries { get; set; } = 3;
 
-    /// <summary>The longest single wait for a rate limit, whatever Retry-After asks for.</summary>
+    /// <summary>
+    /// The longest wait for a rate limit this program will accept. When Groq
+    /// asks for longer (a per-day limit, or a heavy per-minute one), the call
+    /// fails at once with how long the limit has left, rather than retrying
+    /// into the same wall. The default suits a person waiting for a card (the
+    /// Worker); Eval's data-pool runs raise it, as Applr's overnight
+    /// JobAnalyser does, because nobody is waiting on them.
+    /// </summary>
     public int MaxRateLimitWaitSeconds { get; set; } = 30;
+
+    /// <summary>
+    /// How many times a network failure, our own timeout, or a 5xx from Groq
+    /// is retried. Those are usually momentary; anything else (a 400, a bad
+    /// key, a retired model) would fail the same way again.
+    /// </summary>
+    public int TransientRetries { get; set; } = 3;
+
+    /// <summary>The wait before the first transient retry; each later one waits that much longer (5 s, 10 s, 15 s).</summary>
+    public int TransientRetryBaseSeconds { get; set; } = 5;
 
     /// <summary>The reasoning_effort to send for <paramref name="model"/>, or null to leave the field out.</summary>
     public string? ReasoningEffortFor(string model) =>
@@ -98,16 +115,29 @@ public sealed class GroqOptions : AppOptionsBase
                 $"{SectionName}:{nameof(Temperature)} must be between 0 and 2, not {Temperature}.");
         }
 
-        if (RateLimitRetries is < 0 or > 10)
+        if (RateLimitRetries is < 0 or > 50)
         {
             throw new InvalidOperationException(
-                $"{SectionName}:{nameof(RateLimitRetries)} must be between 0 and 10, not {RateLimitRetries}.");
+                $"{SectionName}:{nameof(RateLimitRetries)} must be between 0 and 50, not {RateLimitRetries}.");
         }
 
-        if (MaxRateLimitWaitSeconds is < 1 or > 300)
+        // Up to a day, so a batch run can choose to wait out a daily limit.
+        if (MaxRateLimitWaitSeconds is < 1 or > 86_400)
         {
             throw new InvalidOperationException(
-                $"{SectionName}:{nameof(MaxRateLimitWaitSeconds)} must be between 1 and 300, not {MaxRateLimitWaitSeconds}.");
+                $"{SectionName}:{nameof(MaxRateLimitWaitSeconds)} must be between 1 and 86400, not {MaxRateLimitWaitSeconds}.");
+        }
+
+        if (TransientRetries is < 0 or > 10)
+        {
+            throw new InvalidOperationException(
+                $"{SectionName}:{nameof(TransientRetries)} must be between 0 and 10, not {TransientRetries}.");
+        }
+
+        if (TransientRetryBaseSeconds is < 1 or > 120)
+        {
+            throw new InvalidOperationException(
+                $"{SectionName}:{nameof(TransientRetryBaseSeconds)} must be between 1 and 120, not {TransientRetryBaseSeconds}.");
         }
     }
 }
