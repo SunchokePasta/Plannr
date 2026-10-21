@@ -22,7 +22,8 @@ public sealed record RetrievedContent
     public string? Description { get; init; }
 
     /// <summary>
-    /// The page's schema.org Event as raw JSON-LD, passed to the LLM as-is.
+    /// The page's schema.org Event objects (and Place / LocalBusiness ones,
+    /// for their address) as a raw JSON-LD array, passed to the LLM as-is.
     /// Raw rather than parsed, because sites fill it in inconsistently and
     /// the model is better at reading a messy object than we are at
     /// anticipating every shape.
