@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    The domain: models, interfaces and the extraction pipeline's logic.
+    Deliberately has no package or project references: everything that
+    talks to the outside world (HTTP, Groq, MySQL, Playwright) lives in
+    Plannr.Infrastructure and is reached through interfaces declared here.
+  -->
+
+  <ItemGroup>
+    <!-- Lets the tests call internal test hooks such as ErrorReference.Reset. -->
+    <InternalsVisibleTo Include="Plannr.Tests" />
+  </ItemGroup>
+
+</Project>

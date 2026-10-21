@@ -1,0 +1,21 @@
+<Project>
+
+  <!--
+    MSBuild picks this file up automatically for every project under
+    backend/, so these settings are written once rather than in each
+    .csproj. A project can still override any of them in its own file.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <!--
+      A nullable warning is a bug that hasn't happened yet. Failing the
+      build on it (locally and in CI) stops them piling up the way they do
+      when they're only yellow squiggles.
+    -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Console tool for the data pool and the G3 accuracy runs. Calls the same
+    ExtractionPipeline the Worker will, so the accuracy it reports is the
+    accuracy users get.
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Plannr.Core\Plannr.Core.csproj" />
+    <ProjectReference Include="..\Plannr.Infrastructure\Plannr.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>
