@@ -92,5 +92,21 @@ A screenshot has no URL, so `RetrievedContent.SourceUrl` (and `CardDraft.SourceU
 - **Page `<title>` standing in for a title** is flagged (it's often "Event | Venue | Tickets").
 - **A price over £2,000** is treated as a misread (`Invalid`).
 
+## D22 · Skip the LLM when JSON-LD is complete · review
+- When the page's JSON-LD alone gives a title, a start **with its time**, a place and a price, Groq isn't called. Saves tokens and removes a source of error on the best-structured pages.
+- **Cost:** those cards have no `category` (only the LLM sets it). Turn off with `Extraction:SkipLlmWhenStructuredComplete=false`; Eval can compare both.
+
+## D23 · An LLM failure doesn't fail the capture if the page gave something · review
+- If Groq fails (`ExtractionFailedException`) but the page had JSON-LD or a title, the pipeline logs a Warning with a reference and returns a partial card with flags. Only when there's nothing at all (or it's a screenshot) does the failure propagate.
+- **Why:** the spec says the user completes the card by hand when extraction fails; a half-filled card is a better start than an empty one.
+- **For G3:** these cards will mostly score "not fully correct", which is honest. Eval should report LLM failures separately so a Groq outage isn't mistaken for poor extraction.
+
+## D24 · Core takes `Microsoft.Extensions.Logging.Abstractions` · review
+- Core was meant to have no packages. The pipeline needs to write its one summary line and the LLM-failure warning; the abstractions package is interfaces only (no logging implementation), the standard choice for domain libraries.
+- **Alternative:** move `ExtractionPipeline` to Infrastructure, keeping Core package-free; it would then live away from the logic it orchestrates.
+
+## D25 · Screenshots are identified by their bytes · review
+`ImageSignature` checks PNG/JPEG/WebP magic numbers and ignores the declared type. GIF, HEIC (iPhone's default) and PDF are refused with a message asking for PNG/JPEG/WebP. **iPhone screenshots are PNG**, so the iOS Could isn't blocked, but photos (HEIC) would be.
+
 ## D13 · ⚠️ Groq key exposed in Applr's git history · action for you
 `Applr/src/Applr.API/appsettings.Development.json` is tracked in git and holds a Groq key; the repo has a GitHub remote. **Revoke that key in the Groq console** and create a new one for Plannr (stored with `dotnet user-secrets`, see `docs/progress.md`).

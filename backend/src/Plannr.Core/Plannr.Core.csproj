@@ -2,14 +2,19 @@
 
   <!--
     The domain: models, interfaces and the extraction pipeline's logic.
-    Deliberately has no package or project references: everything that
-    talks to the outside world (HTTP, Groq, MySQL, Playwright) lives in
-    Plannr.Infrastructure and is reached through interfaces declared here.
+    Nothing here talks to the outside world (HTTP, Groq, MySQL,
+    Playwright): that lives in Plannr.Infrastructure and is reached through
+    interfaces declared here. The one package is the logging *interfaces*
+    (no implementation), so the pipeline can write its summary line.
   -->
 
   <ItemGroup>
     <!-- Lets the tests call internal test hooks such as ErrorReference.Reset. -->
     <InternalsVisibleTo Include="Plannr.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.13" />
   </ItemGroup>
 
 </Project>

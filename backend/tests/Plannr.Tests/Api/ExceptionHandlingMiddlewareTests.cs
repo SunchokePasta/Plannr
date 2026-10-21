@@ -142,6 +142,18 @@ public sealed class ExceptionHandlingMiddlewareTests : IDisposable
     }
 
     [Fact]
+    public async Task AnUnreadableScreenshot_Gives400WithTheUserMessage()
+    {
+        var context = NewContext();
+        var exception = UnsupportedImageException.NotAnImage("image/png", 4);
+
+        await Run(context, _ => throw exception);
+
+        Assert.Equal(StatusCodes.Status400BadRequest, context.Response.StatusCode);
+        Assert.Equal(exception.UserMessage, ReadBody(context).Message);
+    }
+
+    [Fact]
     public async Task UploadTooLarge_Gives413()
     {
         var context = NewContext();

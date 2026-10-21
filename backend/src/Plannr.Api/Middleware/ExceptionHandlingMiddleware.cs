@@ -119,6 +119,11 @@ public sealed class ExceptionHandlingMiddleware(
             UnsupportedLinkException unsupported =>
                 (StatusCodes.Status400BadRequest, unsupported.UserMessage),
 
+            // POST /captures/image checks the upload's bytes and size before
+            // anything is sent to Groq.
+            UnsupportedImageException unsupportedImage =>
+                (StatusCodes.Status400BadRequest, unsupportedImage.UserMessage),
+
             // Kestrel's own rejections, e.g. a screenshot upload over the
             // body size limit. They already know the right status code.
             BadHttpRequestException { StatusCode: StatusCodes.Status413PayloadTooLarge } =>
