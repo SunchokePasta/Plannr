@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html><head>
+<title>The Night Owls + support | Example Venue</title>
+<meta property="og:title" content="The Night Owls + support">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {"@type": "Organization", "@id": "https://venue.example/#org", "name": "Example Venue"},
+    {"@type": "WebSite", "@id": "https://venue.example/#site", "url": "https://venue.example/"},
+    {
+      "@type": ["MusicEvent", "Event"],
+      "name": "The Night Owls + support",
+      "startDate": "2026-11-27T19:30",
+      "doorTime": "19:00",
+      "location": {
+        "@type": "MusicVenue",
+        "name": "Example Venue",
+        "address": {"@type": "PostalAddress", "streetAddress": "1 Sound Street", "addressLocality": "Manchester", "postalCode": "M1 1AA"}
+      },
+      "offers": {"@type": "Offer", "price": 18, "priceCurrency": "GBP", "availability": "https://schema.org/InStock"},
+      "performer": {"@type": "MusicGroup", "name": "The Night Owls"}
+    }
+  ]
+}
+</script>
+</head><body><main><h1>The Night Owls</h1><p>Doors 7pm. 14+ (under 16s accompanied).</p></main></body></html>

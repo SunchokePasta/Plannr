@@ -26,4 +26,9 @@
     <ProjectReference Include="..\..\src\Plannr.Eval\Plannr.Eval.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Saved pages the fixture tests read from beside the test DLL. -->
+    <None Update="Fixtures\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>
