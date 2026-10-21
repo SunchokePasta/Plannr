@@ -15,6 +15,9 @@ public sealed record RetrievedContent
 
     public required SourceType SourceType { get; init; }
 
+    /// <summary>Set for web pages; null for content that came from an API or an upload.</summary>
+    public FetchMethod? FetchedWith { get; init; }
+
     /// <summary>The page's own title, or its Open Graph og:title.</summary>
     public string? Title { get; init; }
 
