@@ -70,5 +70,20 @@ A screenshot has no URL, so `RetrievedContent.SourceUrl` (and `CardDraft.SourceU
 - **Chosen:** the generated client (request code written at build time). Alternative: add `Refit.Reflection` and keep Applr's call.
 - **Also found:** the global `ConfigureHttpClientDefaults` hook doesn't reach this client, because Refit sets its own primary handler. My first test using it **sent one request to the real Groq API** with the dummy key `test-key` (401; no real key, only a sample prompt). Fixed by an explicit `configureClient` parameter on `AddPlannrLlm`; the test now provably goes through a stub. CI (change 9) should consider blocking outbound network for unit tests.
 
+## D18 · JSON-LD mapped by code; the LLM only fills gaps · agreed in principle, details review
+- **What:** `JsonLdEventMapper` maps well-formed JSON-LD (name, ISO dates, numeric prices with a currency, Place name/address) straight onto the card. This follows the spec's wording ("reads the event details many sites embed; the LLM fills gaps") more closely than my first design did.
+- **Strict on purpose:** a price written as text (`"£5 - £10"`) or without `priceCurrency` is **not** mapped; it's left for the LLM, so a guess never gets the "structured, certain" label.
+- **Several events on one page:** the first that hasn't started yet is chosen. A "what's on" page with many events may pick the wrong one; the user can edit it, and Eval will show how often it happens.
+
+## D19 · Date-only times are kept as "date, no time" · review
+- `CardDraft.StartTimeKnown` / `EndTimeKnown`: a bare date becomes midnight UK time with the flag off, so the app shows "Sat 14 Dec" rather than "00:00". The `ActivityCards` table will need these two columns.
+- **Clock changes:** a time that doesn't exist (spring forward) moves an hour later; one that happens twice (fall back) is taken as the first, BST.
+
+## D20 · Price-reading rules · review
+- Pence as integers; "From £x" gives a minimum with no maximum.
+- Numbers without a currency are ignored when any number has one ("2 for £10" → £10; "Doors 7pm, £5" → £5).
+- "Free before 10pm, £5 after" → £0–£5.
+- A number with no currency anywhere is assumed GBP **and flagged** (`CurrencyAssumed`).
+
 ## D13 · ⚠️ Groq key exposed in Applr's git history · action for you
 `Applr/src/Applr.API/appsettings.Development.json` is tracked in git and holds a Groq key; the repo has a GitHub remote. **Revoke that key in the Groq console** and create a new one for Plannr (stored with `dotnet user-secrets`, see `docs/progress.md`).
