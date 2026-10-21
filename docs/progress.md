@@ -54,8 +54,8 @@ a reference.
 
 ## Needs you
 
-- **Groq key:** revoke the old one (see D13), create a new one, then from `backend/src/Plannr.Eval`:
-  `dotnet user-secrets set "Groq:ApiKey" "<your new key>"`.
+- **Groq key:** from `backend/src/Plannr.Eval`:
+  `dotnet user-secrets set "Groq:ApiKey" "<your key>"` (see D13: never in a tracked file).
 - **Review** `docs/decisions.md` (entries marked `review`).
 - **Push:** nothing pushed yet; `origin` = `https://github.com/SunchokePasta/Plannr.git`. Planned for change 9.
 

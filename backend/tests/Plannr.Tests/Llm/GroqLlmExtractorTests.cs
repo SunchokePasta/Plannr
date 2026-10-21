@@ -69,7 +69,7 @@ public sealed class GroqLlmExtractorTests
         };
 
     private GroqLlmExtractor Extractor(FakeGroqApi api, GroqOptions? options = null) =>
-        new(api, options ?? new GroqOptions { ApiKey = "gsk_secret_test_key", VisionModel = "vision-model" }, _time, _logger);
+        new(api, options ?? new GroqOptions { ApiKey = "fake-secret-value-for-tests", VisionModel = "vision-model" }, _time, _logger);
 
     [Fact]
     public async Task AGoodAnswer_IsParsedAndLoggedOnce()
@@ -236,6 +236,6 @@ public sealed class GroqLlmExtractorTests
         }
 
         await extraction;
-        Assert.DoesNotContain(_logger.Collector.GetSnapshot(), r => r.Message.Contains("gsk_secret_test_key"));
+        Assert.DoesNotContain(_logger.Collector.GetSnapshot(), r => r.Message.Contains("fake-secret-value-for-tests"));
     }
 }

@@ -120,5 +120,5 @@ A screenshot has no URL, so `RetrievedContent.SourceUrl` (and `CardDraft.SourceU
 ## D28 · Eventbrite's `lowPrice: "0.0"` · to check in the data pool
 The live Eventbrite page (21 Oct) had an AggregateOffer from `"0.0"` to `"79.0"`, so the card says £0–£79. That's either a real free tier or Eventbrite's default for the low end. If the data pool shows the latter is common, the mapper should treat a `0.0` low price beside a non-zero high price as unknown.
 
-## D13 · ⚠️ Groq key exposed in Applr's git history · action for you
-`Applr/src/Applr.API/appsettings.Development.json` is tracked in git and holds a Groq key; the repo has a GitHub remote. **Revoke that key in the Groq console** and create a new one for Plannr (stored with `dotnet user-secrets`, see `docs/progress.md`).
+## D13 · Secrets never live in tracked files · agreed
+This repo is public. Keys and passwords go in `dotnet user-secrets` locally (stored in the user profile, outside the repo) and in SSM Parameter Store on AWS, never in a committed file. `.gitignore` also ignores every `appsettings.Development.json` and `appsettings.*.local.json` as a safety net. Test code uses obviously fake values that don't look like real key formats (so secret scanners don't false-alarm).
