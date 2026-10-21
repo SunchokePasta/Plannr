@@ -108,5 +108,17 @@ A screenshot has no URL, so `RetrievedContent.SourceUrl` (and `CardDraft.SourceU
 ## D25 · Screenshots are identified by their bytes · review
 `ImageSignature` checks PNG/JPEG/WebP magic numbers and ignores the declared type. GIF, HEIC (iPhone's default) and PDF are refused with a message asking for PNG/JPEG/WebP. **iPhone screenshots are PNG**, so the iOS Could isn't blocked, but photos (HEIC) would be.
 
+## D26 · Pages that list several activities · review (worth a paragraph in the report)
+- A listicle ("10 cosy things to do in York") or a venue's "what's on" page holds many activities; a card holds one.
+- **Now:** the LLM picks one (the prompt says the first upcoming); with JSON-LD, the mapper picks the first event not yet past. If the LLM gives no description, the page's `og:description` is used, and on a listicle that describes the **article**, not the activity (seen in the blog fixture test).
+- **Possible later:** detect list pages and offer the user a choice of activities, or one card per activity. Not in the spec; would be a Could.
+
+## D27 · Synthetic fixtures, not saved real pages, in the repo · review
+- The repo is public, and a saved page's text and images belong to its site. The fixtures copy **structure** (checked against a live Eventbrite page) with invented content; `Fixtures/Pages/README.md` says what each models.
+- **Real snapshots** belong in the data pool (Milestone 2), stored privately, e.g. a gitignored folder or a private repo. Decide where when building the data-pool tooling.
+
+## D28 · Eventbrite's `lowPrice: "0.0"` · to check in the data pool
+The live Eventbrite page (21 Oct) had an AggregateOffer from `"0.0"` to `"79.0"`, so the card says £0–£79. That's either a real free tier or Eventbrite's default for the low end. If the data pool shows the latter is common, the mapper should treat a `0.0` low price beside a non-zero high price as unknown.
+
 ## D13 · ⚠️ Groq key exposed in Applr's git history · action for you
 `Applr/src/Applr.API/appsettings.Development.json` is tracked in git and holds a Groq key; the repo has a GitHub remote. **Revoke that key in the Groq console** and create a new one for Plannr (stored with `dotnet user-secrets`, see `docs/progress.md`).

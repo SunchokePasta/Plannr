@@ -8,6 +8,9 @@ context runs out. Decisions worth reviewing are in `docs/decisions.md`.
 prints a validated card with uncertainty flags; failures print an error
 reference findable in the log; GitHub Actions runs the tests on every push.
 
+**State on 21 Oct 2026:** changes 1-8 done and committed (nothing pushed). 268 tests pass
+(263 unit + 5 real-Chromium integration). Change 9 (CI) is next, to be built together.
+
 ## Done
 
 | Change | Commit | What |
@@ -28,25 +31,40 @@ reference findable in the log; GitHub Actions runs the tests on every push.
 | 6c | `fd28f9d` | `ExtractionPipeline`, `IExtractionPipeline`, `ImageSignature`, `UnsupportedImageException`, `AddPlannrCapture` |
 | 7a | `9b88be5` | Eval host, error boundary (references, exit codes), user-secrets, `EvalArguments` |
 | 7b | `ad09fcf` | `extract <url>` / `extract --image`; address-repeat and log-format fixes found on a live page |
-| 7c | (this commit) | `models` command; root `README.md` |
+| 7c | `8cee99b` | `models` command; root `README.md` |
+| 8a | `fa94a1d` | Eight synthetic fixture pages + parser/mapper tests over them |
+| 8b | (this commit) | Whole-pipeline tests over the fixtures (fake network + LLM only) |
 
 **Verified live (21 Oct):** `extract` on a real Eventbrite event produced a correct card in ~0.6 s
 from JSON-LD alone (Groq skipped, dummy key). The no-key error path prints the setting name and
 a reference.
 
-## In progress / left
+## Left in Milestone 1
 
-- [x] 5 Groq extractor (**not yet run against real Groq**: needs your key)
-- [x] 6 JSON-LD mapper, normaliser, pipeline
-- [x] 7 Eval host and commands
-- [ ] 8 Fixture-based tests
-- [ ] 9 CI workflow, **to be done together** (not started on purpose)
+- [ ] **9 CI workflow, to be done together** (not started on purpose). Points to cover:
+  - `dotnet test backend --filter "Category!=Integration"` as the fast gate;
+  - a second job/step that installs Chromium (`playwright.ps1 install --with-deps chromium`, which needs `pwsh` on the runner) and runs `--filter Category=Integration`;
+  - unit tests must never reach the network (see D17); consider enforcing it;
+  - push to `origin` for the first time.
+
+## Not verified yet
+
+- **Groq for real.** Needs your key; then `models` to choose `Groq:VisionModel`, and `extract` on a page without complete JSON-LD (e.g. a blog post) and on a screenshot.
+- **The Playwright fallback on a real JavaScript-only site.** Only tested against a local test page.
 
 ## Needs you
 
 - **Groq key:** revoke the old one (see D13), create a new one, then from `backend/src/Plannr.Eval`:
-  `dotnet user-secrets set "Groq:ApiKey" "<your new key>"` (available once change 7 adds the UserSecretsId).
+  `dotnet user-secrets set "Groq:ApiKey" "<your new key>"`.
+- **Review** `docs/decisions.md` (entries marked `review`).
 - **Push:** nothing pushed yet; `origin` = `https://github.com/SunchokePasta/Plannr.git`. Planned for change 9.
+
+## Ideas noticed along the way (not started)
+
+- **Cancelled/postponed events:** JSON-LD has `eventStatus` (`EventCancelled`, `EventPostponed`); the mapper ignores it. Flagging those would stop users planning for a cancelled event.
+- **List pages** (D26): offer a choice of activities.
+- **Eventbrite `lowPrice: "0.0"`** (D28): check in the data pool.
+- **Milestone 2 (data pool):** an Eval `snapshot` command saving pages privately, a labels file, and a `score` command for G3 per link type, reporting LLM failures and browser fallbacks separately.
 
 ## Machine setup notes
 
