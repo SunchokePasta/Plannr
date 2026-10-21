@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    The REST API and (later) SignalR hub the phone talks to. It must answer
+    in milliseconds, so anything slow (scraping, Groq) is handed to
+    Plannr.Worker through the Captures table rather than done here.
+  -->
+
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Plannr.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Plannr.Core\Plannr.Core.csproj" />
+    <ProjectReference Include="..\Plannr.Infrastructure\Plannr.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

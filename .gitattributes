@@ -1,0 +1,7 @@
+# Same rule as Applr: git normalises text files to LF in the repo and
+# checks them out with each machine's native endings. Without this,
+# Windows (CRLF) and the Linux CI runner (LF) fight over every line.
+* text=auto
+
+# Shell scripts run on Linux (CI, Docker) and break with CRLF endings.
+*.sh text eol=lf
