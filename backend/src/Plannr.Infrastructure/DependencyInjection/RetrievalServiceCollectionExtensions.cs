@@ -42,6 +42,13 @@ public static class RetrievalServiceCollectionExtensions
                 PooledConnectionLifetime = TimeSpan.FromMinutes(2)
             });
 
+        // One shared browser for the whole process (it's the expensive part);
+        // the container disposes it, closing Chromium, on shutdown.
+        if (options.BrowserFallbackEnabled)
+        {
+            services.AddSingleton<IBrowserPageFetcher, PlaywrightPageFetcher>();
+        }
+
         services.AddTransient<IContentRetriever, WebPageRetriever>();
 
         return services;

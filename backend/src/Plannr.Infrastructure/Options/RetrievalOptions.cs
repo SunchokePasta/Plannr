@@ -36,6 +36,28 @@ public sealed class RetrievalOptions : AppOptionsBase
     /// </summary>
     public int MaxStructuredDataChars { get; set; } = 8000;
 
+    /// <summary>
+    /// Retry a page in headless Chromium when plain HTTP got a JavaScript
+    /// shell. Off means HTTP only -- useful where Chromium isn't installed.
+    /// </summary>
+    public bool BrowserFallbackEnabled { get; set; } = true;
+
+    /// <summary>
+    /// Below this much readable text, with no JSON-LD either, a page is
+    /// treated as one that only fills in with JavaScript.
+    /// </summary>
+    public int MinBodyTextChars { get; set; } = 200;
+
+    /// <summary>The longest the browser may take to load the page itself.</summary>
+    public int BrowserTimeoutSeconds { get; set; } = 30;
+
+    /// <summary>
+    /// After the page loads, how long to wait for its scripts' requests to
+    /// go quiet. Some pages never go quiet (live chat, analytics), so this
+    /// is a ceiling, not a requirement: the HTML is read either way.
+    /// </summary>
+    public int BrowserSettleSeconds { get; set; } = 5;
+
     public override void Validate()
     {
         if (string.IsNullOrWhiteSpace(UserAgent))
@@ -71,6 +93,25 @@ public sealed class RetrievalOptions : AppOptionsBase
         {
             throw new InvalidOperationException(
                 $"{SectionName}:{nameof(MaxStructuredDataChars)} must be at least 500, not {MaxStructuredDataChars}.");
+        }
+
+        if (MinBodyTextChars < 0)
+        {
+            throw new InvalidOperationException(
+                $"{SectionName}:{nameof(MinBodyTextChars)} can't be negative, not {MinBodyTextChars}.");
+        }
+
+        if (BrowserTimeoutSeconds is < 1 or > 120)
+        {
+            throw new InvalidOperationException(
+                $"{SectionName}:{nameof(BrowserTimeoutSeconds)} must be between 1 and 120, not {BrowserTimeoutSeconds}.");
+        }
+
+        if (BrowserSettleSeconds < 0 || BrowserSettleSeconds > BrowserTimeoutSeconds)
+        {
+            throw new InvalidOperationException(
+                $"{SectionName}:{nameof(BrowserSettleSeconds)} must be between 0 and " +
+                $"{nameof(BrowserTimeoutSeconds)} ({BrowserTimeoutSeconds}), not {BrowserSettleSeconds}.");
         }
     }
 }
