@@ -7,6 +7,8 @@ using Plannr.Core.Interfaces;
 using Plannr.Eval;
 using Plannr.Infrastructure.DependencyInjection;
 using Plannr.Infrastructure.Diagnostics;
+using Plannr.Infrastructure.Llm;
+using Plannr.Infrastructure.Options;
 using Serilog;
 
 // First, before anything can fail: every reference this process mints
@@ -80,7 +82,9 @@ try
     {
         EvalCommand.ExtractLink => await ExtractCommands.LinkAsync(pipeline, arguments.Url!, Console.Out, cancel.Token),
         EvalCommand.ExtractImage => await ExtractCommands.ImageAsync(pipeline, arguments.ImagePath!, Console.Out, cancel.Token),
-        _ => throw new InvalidOperationException($"{arguments.Command} isn't implemented yet.")
+        EvalCommand.Models => await ModelsCommand.RunAsync(
+            services.GetRequiredService<IGroqApi>(), services.GetRequiredService<GroqOptions>(), Console.Out, cancel.Token),
+        _ => throw new InvalidOperationException($"{arguments.Command} has no handler.")
     };
 }
 catch (OperationCanceledException) when (cancel.IsCancellationRequested)

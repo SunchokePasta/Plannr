@@ -25,13 +25,20 @@ reference findable in the log; GitHub Actions runs the tests on every push.
 | 5d | `8cb1150` | `AddPlannrLlm` with Refit 16 generated client; test through real Refit + stub |
 | 6a | `c74a2ab` | `JsonLdEventMapper`, `UkDateParser`, `PriceParser`; `CardDraft` reporting fields |
 | 6b | `313a922` | `CardNormaliser`, `ExtractionOptions` |
-| 6c | (this commit) | `ExtractionPipeline`, `IExtractionPipeline`, `ImageSignature`, `UnsupportedImageException`, `AddPlannrCapture` |
+| 6c | `fd28f9d` | `ExtractionPipeline`, `IExtractionPipeline`, `ImageSignature`, `UnsupportedImageException`, `AddPlannrCapture` |
+| 7a | `9b88be5` | Eval host, error boundary (references, exit codes), user-secrets, `EvalArguments` |
+| 7b | `ad09fcf` | `extract <url>` / `extract --image`; address-repeat and log-format fixes found on a live page |
+| 7c | (this commit) | `models` command; root `README.md` |
+
+**Verified live (21 Oct):** `extract` on a real Eventbrite event produced a correct card in ~0.6 s
+from JSON-LD alone (Groq skipped, dummy key). The no-key error path prints the setting name and
+a reference.
 
 ## In progress / left
 
 - [x] 5 Groq extractor (**not yet run against real Groq**: needs your key)
 - [x] 6 JSON-LD mapper, normaliser, pipeline
-- [ ] 7 Eval host and commands
+- [x] 7 Eval host and commands
 - [ ] 8 Fixture-based tests
 - [ ] 9 CI workflow, **to be done together** (not started on purpose)
 
