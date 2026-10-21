@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging.Testing;
 using Plannr.Api.Middleware;
 using Plannr.Api.Models;
 using Plannr.Core.Diagnostics;
+using Plannr.Core.Exceptions;
 using Plannr.Tests.Diagnostics;
 
 namespace Plannr.Tests.Api;
@@ -111,6 +112,22 @@ public sealed class ExceptionHandlingMiddlewareTests : IDisposable
 
         Assert.Equal(StatusCodes.Status504GatewayTimeout, context.Response.StatusCode);
         Assert.Equal(LogLevel.Error, _logger.Collector.LatestRecord.Level);
+    }
+
+    [Fact]
+    public async Task UnsupportedLink_Gives400WithTheUserMessageOnly()
+    {
+        var context = NewContext();
+        var exception = new UnsupportedLinkException("ftp://files.example.com/flyer.pdf is not http(s)");
+
+        await Run(context, _ => throw exception);
+
+        var raw = ReadRawBody(context);
+
+        Assert.Equal(StatusCodes.Status400BadRequest, context.Response.StatusCode);
+        Assert.Equal(exception.UserMessage, ReadBody(context).Message);
+        Assert.DoesNotContain("ftp://", raw);
+        Assert.Equal(LogLevel.Warning, _logger.Collector.LatestRecord.Level);
     }
 
     [Fact]

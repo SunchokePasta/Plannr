@@ -2,6 +2,7 @@ using System.Data.Common;
 using System.Text.Json;
 using Plannr.Api.Models;
 using Plannr.Core.Diagnostics;
+using Plannr.Core.Exceptions;
 
 namespace Plannr.Api.Middleware;
 
@@ -112,6 +113,12 @@ public sealed class ExceptionHandlingMiddleware(
     internal static (int Status, string Message) Describe(Exception exception) =>
         exception switch
         {
+            // POST /captures classifies the link before queuing it. Its
+            // UserMessage is written to be shown; Message (which names the
+            // URL) stays in the log.
+            UnsupportedLinkException unsupported =>
+                (StatusCodes.Status400BadRequest, unsupported.UserMessage),
+
             // Kestrel's own rejections, e.g. a screenshot upload over the
             // body size limit. They already know the right status code.
             BadHttpRequestException { StatusCode: StatusCodes.Status413PayloadTooLarge } =>
