@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Plannr.Core.Diagnostics;
 using Plannr.Core.Exceptions;
+using Plannr.Core.Interfaces;
 using Plannr.Eval;
 using Plannr.Infrastructure.DependencyInjection;
 using Plannr.Infrastructure.Diagnostics;
@@ -73,8 +74,12 @@ try
 
     await using var services = builder.Services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
 
+    var pipeline = services.GetRequiredService<IExtractionPipeline>();
+
     return arguments.Command switch
     {
+        EvalCommand.ExtractLink => await ExtractCommands.LinkAsync(pipeline, arguments.Url!, Console.Out, cancel.Token),
+        EvalCommand.ExtractImage => await ExtractCommands.ImageAsync(pipeline, arguments.ImagePath!, Console.Out, cancel.Token),
         _ => throw new InvalidOperationException($"{arguments.Command} isn't implemented yet.")
     };
 }

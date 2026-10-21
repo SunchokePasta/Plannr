@@ -155,25 +155,31 @@ public static partial class JsonLdEventMapper
     private static string? Address(JsonNode? location)
     {
         var first = AsObjects(location).FirstOrDefault();
-        var address = first?["address"];
+        var node = first?["address"];
 
-        if (address is JsonValue)
+        if (node is JsonValue)
         {
-            return Text(address);
+            return Text(node);
         }
 
-        if (address is not JsonObject postal)
+        if (node is not JsonObject postal)
         {
             return null;
         }
 
-        var parts = new[] { "streetAddress", "addressLocality", "postalCode" }
-            .Select(key => Text(postal[key]))
-            .OfType<string>()
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
+        // Sites often put the whole address in streetAddress and repeat the
+        // town and postcode in their own fields ("..., London, W6 0RF" +
+        // "London"), so a part already in the address isn't added again.
+        var address = string.Empty;
+        foreach (var part in new[] { "streetAddress", "addressLocality", "postalCode" }.Select(key => Text(postal[key])).OfType<string>())
+        {
+            if (!address.Contains(part, StringComparison.OrdinalIgnoreCase))
+            {
+                address = address.Length == 0 ? part : $"{address}, {part}";
+            }
+        }
 
-        return parts.Count == 0 ? null : string.Join(", ", parts);
+        return address.Length == 0 ? null : address;
     }
 
     /// <summary>JSON-LD descriptions often carry HTML and entities; the card wants plain text.</summary>

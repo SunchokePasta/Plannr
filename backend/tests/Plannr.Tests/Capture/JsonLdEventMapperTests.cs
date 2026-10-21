@@ -44,6 +44,18 @@ public sealed class JsonLdEventMapperTests
     }
 
     [Fact]
+    public void AnAddressAlreadyHoldingTheTown_DoesNotRepeatIt()
+    {
+        // As Eventbrite writes it: the full address in streetAddress, the town again on its own.
+        var fields = JsonLdEventMapper.Map("""
+            [{"@type":"Event","name":"Day","location":{"@type":"Place","name":"POSK",
+              "address":{"streetAddress":"238-246 King Street, London, W6 0RF","addressLocality":"London","postalCode":"W6 0RF"}}}]
+            """, Now)!;
+
+        Assert.Equal("238-246 King Street, London, W6 0RF", fields.Address);
+    }
+
+    [Fact]
     public void AnAggregateOffer_GivesTheRange()
     {
         var fields = JsonLdEventMapper.Map("""

@@ -202,6 +202,6 @@ public sealed class ExtractionPipelineTests : IDisposable
 
         var line = Assert.Single(_logger.Collector.GetSnapshot());
         Assert.Equal(LogLevel.Information, line.Level);
-        Assert.Contains("1 flag(s) Price:Missing", line.Message);
+        Assert.Contains("1 flag(s): Price:Missing", line.Message);
     }
 }

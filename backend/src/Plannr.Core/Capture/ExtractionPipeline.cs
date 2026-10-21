@@ -84,7 +84,7 @@ public sealed class ExtractionPipeline(
 
         logger.LogInformation(
             "Extracted {SourceType} {Source} in {ElapsedMs} ms (via {FetchedWith}, event data {HasEventData}, LLM {UsedLlm}): " +
-            "{FlagCount} flag(s) {Flags}.",
+            "{FlagCount} flag(s): {Flags}.",
             card.SourceType,
             card.SourceUrl?.ToString() ?? "screenshot",
             stopwatch.ElapsedMilliseconds,
@@ -92,7 +92,7 @@ public sealed class ExtractionPipeline(
             card.HasEventData,
             card.UsedLlm,
             card.Flags.Count,
-            string.Join(", ", card.Flags.Select(f => $"{f.Field}:{f.Reason}")));
+            card.Flags.Count == 0 ? "none" : string.Join(", ", card.Flags.Select(f => $"{f.Field}:{f.Reason}")));
 
         return card;
     }
