@@ -2,7 +2,8 @@
 
 Running log of the build, kept current with every commit so work can
 resume from here if the chat's context runs out. Choices to review:
-[`decisions.md`](decisions.md). Everything planned, file by file:
+[`decisions.md`](decisions.md). Every error that changed the code:
+[`issues-log.md`](issues-log.md). Everything planned, file by file:
 [`structure.json`](structure.json) (overview in [`structure.md`](structure.md)).
 
 **State on 22 Oct 2026:** Milestone 1 is complete and pushed to
@@ -38,7 +39,9 @@ by `structure.json`.
 | 9b | `f142d87` | NuGet lock files; SDK pinned in `backend/global.json` |
 | 9c | `9736316` | `.github/workflows/ci.yml`: build → unit → integration → deploy placeholder |
 | 9d | (push) | First push; run `39766496866` green in ~3 min |
-| 10a-10c | `4fc47be`, `5bb230c`, (this commit) | `structure.json` + `StructureManifestTests`; placeholders for backend, data pool, mobile, infra; `structure.md` |
+| 10a-10c | `4fc47be`, `5bb230c`, `b73ed6f` | `structure.json` + `StructureManifestTests`; placeholders for backend, data pool, mobile, infra; `structure.md` (CI run `39767569291` green) |
+| 5f | `01c65be` | Mangled-key check at startup; `models` 401 message; `qwen/qwen3.8-27b` verified as vision model |
+| docs | (this commit) | `issues-log.md` (backfilled); your 22 Oct answers recorded (D12, D30, D33-D39); M2 plan |
 
 ## What's left, in order
 
@@ -58,17 +61,34 @@ labelling.
 | **M8** | Test pass, G3 on the 70-link held-out set, MVP | P5, G3 (11 Dec) |
 | **T2** | Should features: link in bio, YouTube, date ranges, auto date selection, reminders, calendar, search; **AWS deploy** (fills the CI deploy job) | Trial (P6) |
 
+## Verified live (22 Oct)
+
+- **Groq, text:** Eventbrite event with the LLM forced on (structured data won every field; LLM added the category) and Wikipedia's Notting Hill Carnival (LLM did everything: next year's bank holiday weekend, price flagged missing). ~1 s and ~2k tokens per call.
+- **Groq, screenshot:** `qwen/qwen3.8-27b` read a drawn event flyer correctly (D36).
+
 ## Not verified yet
 
-- **Groq for real.** Needs your key; then `models` to choose `Groq:VisionModel`, and `extract` on a page without complete JSON-LD (e.g. a blog post) and on a screenshot.
 - **The Playwright fallback on a real JavaScript-only site.** Tested against a local page, locally and in CI.
 
 ## Needs you
 
-- **Groq key:** from `backend/src/Plannr.Eval`: `dotnet user-secrets set "Groq:ApiKey" "<your key>"` (D13).
-- **Branch protection (9e):** GitHub → Settings → Branches → add a rule for `main` requiring the CI checks. Only you can change repo settings.
+- **Branch protection:** GitHub → Settings → Branches (steps in chat, 22 Oct); then work moves to feature branches (D39).
+- **Data pool:** the 100 links, the scoring rules, where snapshots live (M2 below).
+- **Docker** (D38): local MySQL80 instead, or enable virtualisation and install Docker.
 - **Review** `decisions.md` (entries marked `review` or `question`) and the open questions in `structure.json`.
-- **Applr (separate repo):** its `appsettings.Development.json` is tracked by git and now holds a key as an uncommitted change. Untrack it (`git rm --cached`, plus a `.gitignore` rule) before your next Applr commit.
+- **Applr (separate repo):** its `appsettings.Development.json` is tracked by git and holds a key as an uncommitted change. Untrack it (`git rm --cached`, plus a `.gitignore` rule) before your next Applr commit.
+
+## Next: M2, the data pool (P3 due 6 Nov)
+
+| Step | What | Waits on you for |
+|---|---|---|
+| **M2a** | Data pool layout and label format (`DataPoolEntry`, loader, tests): id, URL or image file, link type, dev/held-out set, expected title / start / end / place / price | Where snapshots live; CSV OK? |
+| **M2b** | `snapshot <url>`: fetch once and save the raw HTML plus a small record (final URL, fetch method, time), because events expire | |
+| **M2c** | Run the pipeline **from snapshots** (a fetcher that serves saved pages), so scoring is offline, repeatable, and never re-hits the sites | |
+| **M2d** | `score`: the pipeline over the dev or held-out set, compared with the labels; accuracy per link type (G3 targets: events 90%, web 80%, screenshots 75%, TikTok 60%), plus LLM failures, browser fallbacks and flag counts reported separately; a report file for P4 | The "fully correct" rules |
+| **M2e** | First scoring run on the 30-link development set | The links, labelled |
+
+TikTok links can be collected and labelled now but only scored once M6 adds TikTok retrieval.
 
 ## Ideas noticed along the way (not started)
 

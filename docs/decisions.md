@@ -48,9 +48,10 @@ The pipeline has two entry points, link and image, instead of an `ImageRetriever
 
 ## D11 · Instagram as a subclass of `UnsupportedLinkException` · agreed
 
-## D12 · Plannr.Api references Playwright (through Infrastructure) · review
-- **Cost:** the API's build output contains the Playwright library (not the browser). Harmless now.
-- **Plan:** when the Worker arrives, consider splitting scraping into `Plannr.Infrastructure.Scraping` so the API's Docker image stays small.
+## D12 · Scraping moves into its own project at M4 · agreed
+- **Now:** Plannr.Api references Infrastructure, which references Playwright, so the API's build output carries Playwright's ~130 MB driver though the API never fetches a page.
+- **At M4,** when the Worker arrives: page fetching (HTTP + Playwright, the SSRF guard, the retrievers) moves into `Plannr.Infrastructure.Scraping`, referenced by the Worker and Eval only. The API keeps `LinkClassifier` (Core) for its instant "unsupported link" answer.
+- **Why:** a smaller, faster-to-deploy API image with fewer packages to keep patched; and the plan's rule that a crashed browser mustn't take the API down becomes something the compiler enforces, since the API can't call the browser code at all.
 
 ## D14 · Refit instead of the OpenAI .NET SDK for Groq · review
 - **Spec/plan said:** check whether the OpenAI SDK works against Groq with a base-URL change.
@@ -127,7 +128,7 @@ The live Eventbrite page (21 Oct) had an AggregateOffer from `"0.0"` to `"79.0"`
   - **Eval: 900 s (15 min), 10 rate-limit waits, 15 s/30 s/45 s retries** (`src/Plannr.Eval/appsettings.json`): data-pool runs have nobody waiting, like JobAnalyser's overnight runs.
 - **Found while doing it:** retry waits on a fake clock hang a test forever unless something moves the clock; the extractor tests now drive it through a helper that *fails* after a simulated limit instead of hanging. Also: Plannr.Api and Plannr.Eval both copy an `appsettings.json` into the test output, one overwriting the other; a test reading Eval's settings now reads its source file.
 
-## D30 · CI as staged jobs, each building for itself · stages agreed, rebuild review
+## D30 · CI as staged jobs, each building for itself · agreed
 - **Agreed:** build → unit tests → integration tests → deploy, chained with `needs:` (GitLab-style stages); every push plus PRs into `main`; lock files with `--locked-mode`; SDK pinned by `backend/global.json`; read-only token; timeouts plus `--blame-hang-timeout 2m`.
 - **Review:** each job checks out and builds again rather than receiving the build job's output. The test project's output is ~130 MB (mostly Playwright's driver), so moving it between jobs would be slower than the ~30 s cached rebuild. The cost is that the "Build" job is a gate ("does it compile?") rather than the thing that's tested. When deploying arrives, the deployable thing (Docker images) should be built once and passed on: "build once, deploy many".
 - **First run** (`39766496866`, 22 Oct): all four jobs green on Linux, 34 s + 34 s + 1 m 10 s + 3 s.
@@ -139,6 +140,34 @@ GitHub's notice on every job: *"The ubuntu-latest label will migrate to Ubuntu 2
 - `docs/structure.json` lists every planned file (stub on disk, generated later, or folder) with milestone, purpose, connections and open questions; `StructureManifestTests` keeps it and the disk in step (see `docs/structure.md`).
 - **Its reach:** a backend test reads the whole repository (mobile/, infra/, data-pool/). Simple and already in CI; the alternative is a separate script and CI step.
 - **Real files aren't listed**, only planned ones; git tracks the rest. So the list shrinks as things get built.
+
+## D33 · EF Core 9 with Pomelo 9, as in Applr · agreed
+Pomelo's MySQL provider for EF Core 10 is the open risk; Applr already runs EF Core 9 + Pomelo 9 on .NET 10. Revisit only if a stable Pomelo 10 is out and something needs it.
+
+## D34 · One repository class per table, as in Applr · agreed
+`ICardRepository`, `ICaptureRepository`, ... in Core, EF implementations in Infrastructure. A service that needs two tables uses two repositories.
+
+## D35 · AWS region eu-west-2 (London) · agreed
+Meets the spec's "stored in the UK" for user data (UK GDPR section).
+
+## D36 · `qwen/qwen3.8-27b` for both text and screenshots · review
+Groq's model list (22 Oct) has no model labelled for images. Qwen 3.8 was tested with a drawn event flyer and read every field correctly in ~1 s, so it is Eval's `Groq:VisionModel` as well as its text model. Re-check with `models` if Groq changes its line-up; a 404 now names the setting to change.
+
+## D37 · How the Worker tells the app a card is ready · question (recommendation changed)
+The phone's live connection (SignalR) is to the **API**; the card is made by the **Worker**, a separate program. Options:
+- **(a)** the Worker calls a private API endpoint ("capture 42 done");
+- **(b)** the API checks the Captures table every ~2 s for newly finished captures and tells the right user;
+- **(c)** a message broker (Redis) that both connect to.
+
+**I now recommend (b)** (I first suggested (a)): nothing new to secure (an internal endpoint on a public API needs its own authentication), it survives either program restarting, and it keeps working with more than one API instance, because each instance tells its own connected phones. The cost is up to ~2 s of delay on top of the extraction itself, and one small query every 2 s.
+
+## D38 · No Docker on this laptop (yet) · question
+Checked 22 Oct: Docker isn't installed, WSL isn't installed, and the firmware reports hardware virtualisation **disabled**, which Docker Desktop needs. `MySQL80` is installed and running (Applr's).
+- **Recommendation:** develop against the local MySQL80 (a separate `plannr` database); in CI, database tests use a MySQL **service container** (GitHub's runners have Docker). Docker locally becomes optional; Docker images are built by CI in T2.
+- If you want Docker anyway: enable virtualisation in the BIOS, then install WSL 2 and Docker Desktop (see the walkthrough in chat / progress.md).
+
+## D39 · Branches: decided in principle, not yet in use · agreed
+Feature branches with pull requests once branch protection is on (you set it in GitHub's settings). Until then, and as you chose on 22 Oct, work continues on `main`. Opening PRs from here also needs the GitHub CLI (`gh`), which isn't installed.
 
 ## D13 · Secrets never live in tracked files · agreed
 This repo is public. Keys and passwords go in `dotnet user-secrets` locally (stored in the user profile, outside the repo) and in SSM Parameter Store on AWS, never in a committed file. `.gitignore` also ignores every `appsettings.Development.json` and `appsettings.*.local.json` as a safety net. Test code uses obviously fake values that don't look like real key formats (so secret scanners don't false-alarm).

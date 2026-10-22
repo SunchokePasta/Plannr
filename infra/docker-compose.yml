@@ -1,3 +1,4 @@
-# PLANNED (M3): Local MySQL (M3), then the API and Worker containers (M4).
+# PLANNED (M3): Local MySQL (M3), then the API and Worker containers (M4). Optional while there's no
+#   Docker on the laptop (D38).
 # Connects to: infra/docker/api.Dockerfile, infra/docker/worker.Dockerfile
 # Tracked in docs/structure.json; remove this header and the entry when it's built.
