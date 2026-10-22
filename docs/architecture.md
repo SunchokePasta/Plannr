@@ -16,7 +16,7 @@ Two kinds of boxes matter:
 
 ```mermaid
 flowchart TB
-  subgraph P["P · Your phone: the Plannr app (Expo)"]
+  subgraph P["P · Phone app (Expo)"]
     P1["P1 · Share sheet<br/>a link or screenshot comes in"]
     P2["P2 · Screens<br/>wishlist, card, groups, plans"]
     P3["P3 · API client<br/>HTTPS + JSON"]
@@ -24,7 +24,7 @@ flowchart TB
     P5["P5 · Push notifications<br/>when the app is closed"]
   end
 
-  subgraph A["A · Plannr.Api: program on AWS"]
+  subgraph A["A · Plannr.Api (AWS)"]
     A1["A1 · Error boundary<br/>exception middleware"]
     A2["A2 · Endpoints<br/>auth, captures, cards, groups, plans"]
     A3["A3 · Updates hub<br/>SignalR"]
@@ -39,7 +39,7 @@ flowchart TB
     D5[("D5 · Push tokens")]
   end
 
-  subgraph W["W · Plannr.Worker: program on AWS"]
+  subgraph W["W · Plannr.Worker (AWS)"]
     W1["W1 · Job loop<br/>claims the next Pending capture"]
     W2["W2 · ExtractionPipeline<br/>from the Plannr.Core library"]
     W3["W3 · Scraping library<br/>HTTP, Chromium, retrievers, SSRF guard<br/>D12"]
