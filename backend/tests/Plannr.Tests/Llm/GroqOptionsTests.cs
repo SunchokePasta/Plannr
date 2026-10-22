@@ -15,6 +15,19 @@ public sealed class GroqOptionsTests
         Assert.Contains("user-secrets", exception.Message);
     }
 
+    [Theory]
+    [InlineData("<fake-key-value>", "angle bracket")]
+    [InlineData("<fake-key-value", "angle bracket")]
+    [InlineData(" fake-key-value", "spaces")]
+    [InlineData("\"fake-key-value\"", "quote")]
+    public void Validate_WithAMangledKey_SaysWhatsWrongWithoutShowingIt(string key, string expected)
+    {
+        var exception = Assert.Throws<InvalidOperationException>(() => new GroqOptions { ApiKey = key }.Validate());
+
+        Assert.Contains(expected, exception.Message);
+        Assert.DoesNotContain("fake-key-value", exception.Message);
+    }
+
     [Fact]
     public void Validate_WithAKeyAndDefaults_Passes()
     {

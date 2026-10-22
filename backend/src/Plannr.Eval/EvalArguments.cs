@@ -26,7 +26,7 @@ public sealed record EvalArguments(EvalCommand Command, Uri? Url = null, string?
           --verbose                 Log at Debug, including the full prompt sent to Groq.
 
         The card goes to stdout and the log to stderr, so "extract <url> > card.json" keeps just the card.
-        Set the Groq key once with: dotnet user-secrets set "Groq:ApiKey" "<key>" (from src/Plannr.Eval).
+        Set the Groq key once with: dotnet user-secrets set "Groq:ApiKey" "gsk_..." (from src/Plannr.Eval; the key itself, no < >).
         """;
 
     /// <exception cref="ArgumentException">The arguments don't form a command; the message says why.</exception>

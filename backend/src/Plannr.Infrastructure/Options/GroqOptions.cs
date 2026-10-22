@@ -80,11 +80,27 @@ public sealed class GroqOptions : AppOptionsBase
 
     public override void Validate()
     {
+        const string HowToSet =
+            "From the program's project folder run: dotnet user-secrets set \"Groq:ApiKey\" \"gsk_...\" " +
+            "(the key itself inside the quotes, nothing around it).";
+
         if (string.IsNullOrWhiteSpace(ApiKey))
         {
+            throw new InvalidOperationException($"{SectionName}:{nameof(ApiKey)} is not set. {HowToSet}");
+        }
+
+        // The key's value is never put in these messages -- only what's wrong with its shape.
+        if (ApiKey.StartsWith('<') || ApiKey.EndsWith('>'))
+        {
             throw new InvalidOperationException(
-                $"{SectionName}:{nameof(ApiKey)} is not set. From the program's project folder run " +
-                $"dotnet user-secrets set \"{SectionName}:{nameof(ApiKey)}\" \"<your key>\".");
+                $"{SectionName}:{nameof(ApiKey)} starts or ends with an angle bracket: the < > from an example were " +
+                $"probably kept. Set it again without them. {HowToSet}");
+        }
+
+        if (ApiKey != ApiKey.Trim() || ApiKey.Contains('"') || ApiKey.Contains('\''))
+        {
+            throw new InvalidOperationException(
+                $"{SectionName}:{nameof(ApiKey)} has spaces around it or quote marks in it. Set it again. {HowToSet}");
         }
 
         if (!Uri.TryCreate(BaseUrl, UriKind.Absolute, out var baseUrl) || baseUrl.Scheme is not ("http" or "https"))

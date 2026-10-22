@@ -35,7 +35,7 @@ docs/                      progress and decision logs
 3. **Groq API key**, kept out of the repo with user-secrets:
    ```
    cd backend/src/Plannr.Eval
-   dotnet user-secrets set "Groq:ApiKey" "<your key>"
+   dotnet user-secrets set "Groq:ApiKey" "gsk_..."   # the key itself in the quotes, no < >
    ```
 4. Check which models the key can use, and set `Groq:VisionModel` in
    `backend/src/Plannr.Eval/appsettings.json` to one that accepts images:
