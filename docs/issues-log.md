@@ -39,6 +39,8 @@ site or service), *CI* (GitHub Actions), *tooling* (a command or script).
 | 23 | 5f | `models` failed with **401**; the stored key was `<gsk_...>` | My example command showed `"<your key>"`, and the angle brackets were kept | `Validate()` now refuses a key with `< >`, surrounding spaces or quotes (without showing the key); every example says `"gsk_..."` | live |
 | 24 | 5f | `models` printed Refit's raw 401 stack trace | Only the extractor turned 401 into "Groq refused the API key" | `models` does too | live |
 | 25 | 5f | Groq's model list showed **no obviously image-capable model**, and screenshots are a Must | Groq retires and renames models; nothing in the list is labelled for vision | Tested `qwen/qwen3.8-27b` with a drawn flyer: it read every field correctly. Set as Eval's `VisionModel` (D36); `models` now marks a model used for both jobs | live |
+| 26 | docs | On the architecture page, the zoom percentage changed but the diagrams didn't | The page resized the SVG it found first, and something in the viewer won: its own styles holding diagrams to their box, a redraw replacing the SVG, or an icon SVG found before the diagram. The cause couldn't be seen from here | Zoom now finds the diagram (by Mermaid's `aria-roledescription`) on every press, sizes the box around it with styles that outrank the viewer's, and falls back to CSS `zoom` if the drawing still didn't change size. Verified in headless Chromium: all 13 diagrams render, + and Fit change the drawn size | user |
+| 27 | docs | The overview diagram sprawled to 3,537 px wide with long crossing arrows | Laid out left to right, its seven groups sat side by side | Top to bottom: the groups stack as layers (GitHub and laptop, phone and API, Worker and outside services, database) | review |
 
 ## Tooling hiccups (no code change, but worth knowing)
 
@@ -52,6 +54,7 @@ site or service), *CI* (GitHub Actions), *tooling* (a command or script).
 | T6 | 10c | The 10c commit message says "106 entries"; there are 104 | Left as is: correcting it would mean rewriting public history |
 | T7 | docs | A background CI watcher crashed on a DNS lookup failure on the laptop (network blip), so it never reported | Checked the run directly (green); watchers should retry network errors |
 | T8 | docs | Couldn't check the architecture page's diagrams render: the built-in browser isn't signed in to Claude, and I don't sign in for you | Opened it in your side panel to check by eye |
+| T9 | docs | The built-in browser's page tools refuse local files, so a local test copy couldn't be driven there either | Drove headless Chromium from a throwaway .NET script with Playwright (already installed for the tests); .NET 10 single-file scripts needed `JsonSerializerIsReflectionEnabledByDefault=true` for Playwright |
 
 ## Findings to carry into the data pool (behaviour, not bugs)
 

@@ -15,7 +15,7 @@ Two kinds of boxes matter:
 - **Libraries** (`Plannr.Core`, `Plannr.Infrastructure`, the planned `Plannr.Infrastructure.Scraping`) never run on their own; they're compiled into programs (§4).
 
 ```mermaid
-flowchart LR
+flowchart TB
   subgraph P["P · Your phone: the Plannr app (Expo)"]
     P1["P1 · Share sheet<br/>a link or screenshot comes in"]
     P2["P2 · Screens<br/>wishlist, card, groups, plans"]
