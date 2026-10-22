@@ -16,6 +16,14 @@
       when they're only yellow squiggles.
     -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
+    <!--
+      Each project gets a packages.lock.json recording the exact version of
+      every package and every package those depend on. CI restores with
+      locked mode, so it builds exactly what was built here, and the lock
+      files key CI's package cache.
+    -->
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
   </PropertyGroup>
 
 </Project>

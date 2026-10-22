@@ -371,3 +371,6 @@ appsettings.*.local.json
 
 # Serilog's rolling files (see each program's Program.cs).
 logs/
+
+# dotnet test --results-directory output (.trx files), locally and in CI.
+TestResults/
