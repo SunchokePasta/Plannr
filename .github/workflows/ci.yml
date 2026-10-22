@@ -4,6 +4,11 @@
 # and builds for itself; the NuGet cache keeps that to ~30 s. (Passing the
 # build output between jobs instead would mean moving ~130 MB each time,
 # most of it Playwright's driver.)
+#
+# Runners are pinned to ubuntu-24.04 rather than ubuntu-latest, which GitHub
+# began moving to Ubuntu 26 on 19 Oct 2026: the OS changes only when we
+# choose (Playwright's --with-deps is the step most likely to notice), as a
+# one-line change tried on a branch first (decision D31).
 
 name: CI
 
@@ -31,7 +36,7 @@ env:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     defaults:
       run:
@@ -56,7 +61,7 @@ jobs:
   unit-tests:
     name: Unit tests
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     defaults:
       run:
@@ -98,7 +103,7 @@ jobs:
   integration-tests:
     name: Integration tests (real Chromium)
     needs: unit-tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     defaults:
       run:
@@ -147,7 +152,7 @@ jobs:
     name: Deploy (placeholder)
     needs: integration-tests
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - name: Nothing to deploy yet
