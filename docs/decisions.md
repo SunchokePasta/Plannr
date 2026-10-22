@@ -171,7 +171,7 @@ Feature branches with pull requests once branch protection is on (you set it in 
 
 ## D40 · Every outside connection behind an interface · agreed
 Your rule, as in Applr: anything that reaches outside the program (web pages, Chromium, Groq, DNS, MySQL, the job queue, push, TikTok, YouTube, the clock) is used through an interface, registered in `Program.cs` through dependency injection, so tests swap in a fake through the same DI.
-- **Already true** for page fetching, Chromium, Groq and the clock (see `docs/architecture.md` §5).
+- **Already true** for page fetching, Chromium, Groq and the clock (see `docs/architecture.md` §7).
 - **One gap in built code:** `PublicAddressGuard` and `PlaywrightPageFetcher` call `Dns` directly. Planned `IHostResolver` (M4, with the scraping split).
 - **Planned Refit interfaces** added to `structure.json`: `IExpoPushApi` (M7), `ITikTokOEmbedApi` (M6), `IYouTubeDataApi` (T2).
 

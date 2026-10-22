@@ -1,364 +1,380 @@
 # Plannr architecture
 
-One big overview with labelled parts, then a detail diagram per topic. The
-labels (**P1**, **A4**, **W3** ...) and step numbers (**①** ...) are what the
-other docs and our conversations point at. Yellow boxes are the parts the
-open questions are about.
+How Plannr's parts fit together. Section 1 explains the words; section 2
+is the whole system at a glance; section 3 walks through every step of
+sharing a link; the sections after that zoom in on one topic each. On
+every diagram, **each arrow says what it does**.
 
-GitHub draws these diagrams (they're written in Mermaid); the same page is
-also published as an artifact for reading in the app.
+**Numbering:** the five **groups** of the system are numbered **1-5**
+(1 phone, 2 server, 3 database, 4 worker, 5 outside services), and the
+parts inside a group are **1a, 2c** and so on. The steps of sharing a link
+are **① to ⑰**, in order. **Yellow** marks an open design question.
 
-## §1 · Overview: the whole system
+## §1 · Words used on this page
 
-Two kinds of boxes matter:
-- **Programs** run on their own: the phone app, `Plannr.Api`, `Plannr.Worker`, `Plannr.Eval`, MySQL, Chromium.
-- **Libraries** (`Plannr.Core`, `Plannr.Infrastructure`, the planned `Plannr.Infrastructure.Scraping`) never run on their own; they're compiled into programs (§4).
-
-```mermaid
-flowchart TB
-  subgraph P["P · Phone app (Expo)"]
-    P1["P1 · Share sheet<br/>a link or screenshot comes in"]
-    P2["P2 · Screens<br/>wishlist, card, groups, plans"]
-    P3["P3 · API client<br/>HTTPS + JSON"]
-    P4["P4 · Live updates<br/>SignalR connection"]
-    P5["P5 · Push notifications<br/>when the app is closed"]
-  end
-
-  subgraph A["A · Plannr.Api (AWS)"]
-    A1["A1 · Error boundary<br/>exception middleware"]
-    A2["A2 · Endpoints<br/>auth, captures, cards, groups, plans"]
-    A3["A3 · Updates hub<br/>SignalR"]
-    A4["A4 · Completion watcher<br/>the Q8 part, D37"]
-  end
-
-  subgraph D["D · MySQL database"]
-    D1[("D1 · Users")]
-    D2[("D2 · Captures<br/>also the job queue")]
-    D3[("D3 · Cards + flags")]
-    D4[("D4 · Groups, plans,<br/>responses")]
-    D5[("D5 · Push tokens")]
-  end
-
-  subgraph W["W · Plannr.Worker (AWS)"]
-    W1["W1 · Job loop<br/>claims the next Pending capture"]
-    W2["W2 · ExtractionPipeline<br/>from the Plannr.Core library"]
-    W3["W3 · Scraping library<br/>HTTP, Chromium, retrievers, SSRF guard<br/>D12"]
-    W4["W4 · Groq client<br/>from Plannr.Infrastructure"]
-  end
-
-  subgraph X["X · Outside services"]
-    X1["X1 · Shared web pages"]
-    X2["X2 · TikTok"]
-    X3["X3 · Groq LLM"]
-    X4["X4 · Expo push service"]
-  end
-
-  subgraph L["L · Your laptop"]
-    E1["E1 · Plannr.Eval<br/>extract, snapshot, score"]
-    E2[("E2 · Data pool<br/>saved pages + labels")]
-  end
-
-  subgraph G["G · GitHub"]
-    G1["G1 · CI<br/>build, tests, deploy"]
-  end
-
-  P1 --> P2
-  P2 --> P3
-  P3 -->|"① POST /captures"| A1
-  A1 --> A2
-  A2 -->|"② new capture, Pending"| D2
-  A2 <-->|"cards, groups, plans"| D3
-  A2 <--> D4
-  A2 <--> D1
-  W1 -->|"③ claim it"| D2
-  W1 --> W2
-  W2 --> W3
-  W3 -->|"④ fetch the page"| X1
-  W3 --> X2
-  W2 --> W4
-  W4 -->|"⑤ extract"| X3
-  W1 -->|"⑥ save card, mark Done"| D3
-  A4 -->|"⑦ notice Done"| D2
-  A4 --> A3
-  A3 -->|"⑧ CaptureCompleted"| P4
-  A4 -->|"⑧ app closed: push"| X4
-  X4 --> P5
-  A2 <--> D5
-  E1 -.->|"same pipeline"| W2
-  E1 <--> E2
-  G1 -.->|"deploy, Term 2"| A
-  G1 -.-> W
-
-  classDef question fill:#fde68a,stroke:#b45309,stroke-width:3px,color:#1f2937
-  class A4,W3 question
-```
-
-| Step | What happens |
+| Word | What it means here |
 |---|---|
-| ① | You share a link; the app sends it to the API. |
-| ② | The API checks it's a link Plannr can read (instant), stores it as a **Pending capture**, and answers straight away. The app shows a "processing" card. |
-| ③ | The Worker, checking every second or two, claims the capture. |
-| ④ | It fetches the page (plain HTTP, or Chromium for JavaScript pages). |
-| ⑤ | It maps the page's own event data by code and asks Groq only for what's missing. |
-| ⑥ | It saves the card and its flags, and marks the capture **Done** (or **Failed**, with a message and an error reference). |
-| ⑦ | The API finds out the capture is done. **How is question 8** (§3). |
-| ⑧ | The API tells your phone: instantly over the live connection if the app is open, or as a push notification if it's closed. |
+| **AI client** | The part of the worker that sends text or a screenshot to Groq and reads back its answer. |
+| **API** | The set of addresses the server answers on. The phone app uses it to send and fetch things over the internet. "The server" and "the API" are used to mean the same program. |
+| **APK** | The installable app file for Android. |
+| **Branch** | A separate line of changes in git, kept apart from `main` until it's merged. |
+| **Capture** | **One thing you shared** (a link or a screenshot) and its progress towards becoming a card: *waiting*, *being processed*, *done* or *failed*. Each capture is a row in the captures table. |
+| **Card** | **The result of a capture:** an activity with its title, date and time, place, price and description. You can edit it, keep it, or send it to a group. |
+| **Chromium** | A real web browser with no window, used for pages that only show their content after running JavaScript. Playwright is the library that drives it. |
+| **CI** | Automatic checks that GitHub runs on every change: build the code and run the tests. |
+| **Completion checker** | The part of the server that looks for captures the worker has finished, so it can tell your phone. |
+| **Data pool** | A saved set of real links, with the correct answers written down by hand, used to measure how accurate Plannr's reading is. |
+| **Database** | Where everything is stored, in tables (MySQL). |
+| **Dependency injection** | The program is told at start-up which real or fake version of each part to use, instead of each part creating its own. This is what lets tests swap in fakes. |
+| **Development build** | Your own copy of the app, installed on your phone, that still loads its code live from the laptop while we work on it. |
+| **Endpoint** | One address on the API that does one job, such as "accept a shared link". |
+| **Error reference** | A short code shown with an error, such as `7f3a9c21:03:01`, that finds the matching line in the log. |
+| **Eval** | A command-line tool on the laptop that runs the same extraction as the worker, for testing and measuring accuracy. |
+| **Expo** | A toolkit for building phone apps with React Native: ready-made modules plus a build service (EAS). |
+| **Expo push service** | Expo's servers, which deliver notifications to phones. |
+| **Extraction pipeline** | The fixed sequence of steps that turns a capture into a card: fetch the content, read its hidden details, ask the AI for what's missing, check and tidy the answer, add flags. |
+| **Fake** | A stand-in used in tests in place of something outside, for example an AI that returns prepared answers without using the internet. |
+| **Flag** | A marker on one field of a card that Plannr isn't sure about (missing, uncertain or unreadable), highlighted for you to check. |
+| **Groq** | The company whose servers run the AI (the LLM) Plannr uses. |
+| **Group** | Friends who plan together in Plannr. |
+| **Interface** | A description of what a part must be able to do, without saying how. Code that uses an interface works with any part that fits it, real or fake. |
+| **Job loop** | The worker's main loop: take the next waiting capture, process it, repeat. |
+| **JSON-LD** | Event details that many websites hide in their pages for search engines: name, date, venue, price, in a standard machine-readable form. |
+| **Library** | Code that never runs on its own; it's built into programs that use it. |
+| **LLM** | Large language model: an AI that reads text (or images) and answers questions about it. |
+| **Live updates hub** | The part of the server that keeps a connection open to each running app, so it can tell the app about changes instantly (SignalR). |
+| **main** | The main branch: the version of the code that counts. |
+| **Open Graph tags** | A title, description and image hidden in a web page so link previews look right. |
+| **Plan** | A card sent to a group to agree a date. |
+| **Program** | Code that runs on its own: the phone app, the server, the worker, Eval, the database. |
+| **Pull request** | A request on GitHub to merge a branch into `main`, where the changes can be checked and approved. |
+| **Push notification** | A message that appears on your phone when the Plannr app isn't open. |
+| **React Native** | A way to write a phone app in TypeScript that turns into real Android screens. |
+| **Response** | A group member's yes or no to a plan. |
+| **Retriever** | The part that fetches the content for one kind of link: web pages, TikTok, YouTube. |
+| **Safety guard (SSRF)** | A check that stops a shared link from pointing the server at its own private network. |
+| **Scraping** | Reading a web page's content automatically. |
+| **Server** | A computer on the internet, and the program running on it, that the app talks to. Plannr's server program is `Plannr.Api`. |
+| **Share sheet** | The list of apps your phone shows when you tap Share. |
+| **Wishlist** | All your saved cards. |
+| **Worker** | A second server program that does the slow work (fetching pages, asking the AI) in the background, so the server can always answer quickly. |
 
-## §2 · Sharing a link, end to end
+## §2 · The system at a glance
 
-The same journey as §1 ①-⑧, in time order. The yellow band is the part
-question 8 is about.
-
-```mermaid
-sequenceDiagram
-  autonumber
-  actor U as You
-  participant App as Phone app (P)
-  participant Api as Plannr.Api (A)
-  participant Db as MySQL (D)
-  participant Wk as Plannr.Worker (W)
-  participant Web as Shared page (X1)
-  participant Groq as Groq (X3)
-
-  U->>App: Share a link from TikTok or the browser (P1)
-  App->>Api: POST /api/v1/captures with the URL (A2)
-  Api->>Api: LinkClassifier checks the link. Instagram or ftp gets a 400 here
-  Api->>Db: Save the capture as Pending (D2)
-  Api-->>App: 202 Accepted with the capture's id
-  App-->>U: A "processing" card appears in the wishlist
-  loop every 1-2 seconds
-    Wk->>Db: Claim the oldest Pending capture (W1)
-  end
-  Wk->>Web: Fetch the page, Chromium only if it needs JavaScript (W3)
-  Web-->>Wk: HTML
-  Wk->>Wk: Read JSON-LD, Open Graph and text. Map the JSON-LD by code (W2)
-  Wk->>Groq: Ask only for the fields still missing (W4)
-  Groq-->>Wk: JSON answer with a confidence per field
-  Wk->>Db: Save the card and its flags, mark the capture Done (D3)
-  rect rgba(245, 158, 11, 0.18)
-    Note over Api,Wk: Question 8: the Worker is finished, but the phone is connected to the API, not the Worker
-    loop every ~2 seconds (option b)
-      Api->>Db: Any captures finished since I last looked? (A4)
-    end
-    Db-->>Api: Capture 42, for user 7, is Done
-    Api-->>App: CaptureCompleted over SignalR (A3 to P4)
-  end
-  App->>Api: GET /api/v1/cards/{id}
-  Api-->>App: The card, flags included
-  App-->>U: Card shown, uncertain fields highlighted
-```
-
-If anything fails (the page won't load, Groq is down), the Worker marks the
-capture **Failed** with a message for you and an error reference, and the
-same yellow-band path tells the phone.
-
-## §3 · Question 8: how the API learns a card is ready
-
-**The problem in one line:** the card is finished **inside the Worker**
-(§1 W), but your phone's live connection is to the **API** (§1 A3), and the
-two are separate programs, usually on separate machines. Something has to
-carry "capture 42 is done" from one to the other (§1 ⑦).
+The five groups, and what passes between them. Section 3 opens each group
+up into its parts and walks through every step.
 
 ```mermaid
 flowchart LR
-  subgraph OA["(a) The Worker calls the API"]
-    a1["Worker"] -->|"POST /internal/captures/42/done<br/>with a shared secret"| a2["Plannr.Api"]
-    a2 --> a3["Your phone"]
+  G1["1 · Your phone<br/>the Plannr app"]
+  G2["2 · Plannr server<br/>the API"]
+  G3[("3 · Database")]
+  G4["4 · Background worker"]
+  G5["5 · Outside services<br/>websites, Groq, Expo push"]
+
+  G1 -->|"sends shared links,<br/>asks for finished cards"| G2
+  G2 -->|"replies, and sends live<br/>'card ready' messages"| G1
+  G2 -->|"saves new captures,<br/>reads finished cards"| G3
+  G4 -->|"claims waiting captures,<br/>saves finished cards"| G3
+  G4 -->|"downloads shared pages,<br/>asks Groq to read them"| G5
+  G2 -->|"asks Expo to send<br/>notifications"| G5
+  G5 -->|"delivers notifications"| G1
+```
+
+## §3 · Sharing a link, step by step
+
+Every part of every group has its own column, under its group's heading.
+The steps run **top to bottom, ① to ⑰**; each one starts where the one
+before it ended. Solid arrows are requests, dashed arrows are the replies.
+
+```mermaid
+sequenceDiagram
+  actor You
+  box rgba(127,178,236,0.12) 1 · Your phone, the Plannr app
+    participant N1a as 1a · Share button
+    participant N1b as 1b · Wishlist screen
+    participant N1c as 1c · Notifications
   end
-  subgraph OB["(b) The API checks the database: recommended"]
-    b1["Worker"] -->|"marks Done"| b2[("Captures table")]
-    b3["Plannr.Api"] -->|"every ~2 s: anything new?"| b2
-    b3 --> b4["Your phone"]
+  box rgba(160,160,160,0.12) 2 · Plannr server, the API
+    participant N2a as 2a · Captures endpoint
+    participant N2c as 2c · Completion checker
+    participant N2d as 2d · Live updates hub
+    participant N2b as 2b · Cards endpoint
   end
-  subgraph OC["(c) A message broker in the middle"]
-    c1["Worker"] -->|"publish"| c2[("Redis")]
-    c2 -->|"subscribe"| c3["Plannr.Api"]
-    c3 --> c4["Your phone"]
+  box rgba(110,200,150,0.12) 3 · Database
+    participant N3a as 3a · Captures table
+    participant N3b as 3b · Cards table
+  end
+  box rgba(200,150,240,0.12) 4 · Background worker
+    participant N4a as 4a · Job loop
+    participant N4b as 4b · Extraction pipeline
+    participant N4c as 4c · Scraping library
+    participant N4d as 4d · AI client
+  end
+  box rgba(245,158,11,0.12) 5 · Outside services
+    participant N5a as 5a · Shared website
+    participant N5b as 5b · Groq AI
+    participant N5c as 5c · Expo push
+  end
+
+  You->>N1a: Tap Share in TikTok and pick Plannr
+  N1a->>N2a: ① sends the link
+  N2a->>N3a: ② saves it as a new capture, status waiting
+  N2a-->>N1b: ③ replies at once, so a "processing" card shows
+  N4a->>N3a: ④ every second, claims the next waiting capture
+  N3a-->>N4a: hands back the capture's link
+  N4a->>N4b: ⑤ hands the link to the pipeline
+  N4b->>N4c: ⑥ asks for the page's content
+  N4c->>N5a: ⑦ downloads the page
+  N5a-->>N4c: sends back the page
+  N4c-->>N4b: returns the page's hidden details and text
+  N4b->>N4d: ⑧ sends the details still missing
+  N4d->>N5b: ⑨ asks the AI to read them
+  N5b-->>N4d: answers each field, with how sure it is
+  N4d-->>N4b: returns the fields
+  N4b-->>N4a: returns the finished card and its flags
+  N4a->>N3b: ⑩ saves the card and flags, marks the capture done
+  rect rgba(245, 158, 11, 0.18)
+    Note over N2c,N3a: Open question, see section 4. How the server learns the worker has finished
+    N2c->>N3a: ⑪ every 2 seconds, looks for newly finished captures
+    N3a-->>N2c: your capture is done
+    N2c->>N2d: ⑫ passes on, card ready for this person
+    N2d->>N1b: ⑬ tells the open app the card is ready
+  end
+  N1b->>N2b: ⑭ asks for the finished card
+  N2b->>N3b: ⑮ reads the card and its flags
+  N3b-->>N2b: the card and its flags
+  N2b-->>N1b: sends the card, unsure fields highlighted
+  opt Your app is closed
+    N2c->>N5c: ⑯ asks Expo to send a notification
+    N5c->>N1c: ⑰ the notification appears
+  end
+```
+
+| Step | Arrow | What happens |
+|---|---|---|
+| ① | 1a → 2a | You tap Share in TikTok (or a browser, or your photos) and pick Plannr. The app sends the link to the server. |
+| ② | 2a → 3a | The server checks it's a kind of link Plannr can read, then saves it as a new **capture** with the status *waiting*. |
+| ③ | 2a → 1b | The server replies straight away, without waiting for the slow part, so your wishlist shows a "processing" card at once. |
+| ④ | 4a → 3a | The worker checks every second for waiting captures and claims the oldest one, so no other worker takes it too. |
+| ⑤ | 4a → 4b | The job loop hands the link to the extraction pipeline. |
+| ⑥ | 4b → 4c | The pipeline asks the scraping library for the page's content. |
+| ⑦ | 4c → 5a | The scraping library downloads the page, using the hidden browser only if the page needs JavaScript, and returns the page's hidden event details and text. |
+| ⑧ | 4b → 4d | The pipeline reads the hidden event details itself, then sends whatever is still missing to the AI client. |
+| ⑨ | 4d → 5b | The AI client asks Groq to read the content and gets back each field with how sure it is. The pipeline checks and tidies the answer and adds flags. |
+| ⑩ | 4a → 3b | The finished card and its flags are saved, and the capture is marked *done* (or *failed*, with a message and an error reference). |
+| ⑪ | 2c → 3a | The server's completion checker looks every 2 seconds for captures that have just finished. **This is the open question in section 4.** |
+| ⑫ | 2c → 2d | It passes "card ready for this person" to the live updates hub. |
+| ⑬ | 2d → 1b | The hub tells your app, if it's open, that the card is ready. |
+| ⑭ | 1b → 2b | The app asks the server for the finished card. |
+| ⑮ | 2b → 3b | The server reads the card and its flags and sends them back; the app shows the card with unsure fields highlighted. |
+| ⑯ | 2c → 5c | If your app is closed, the server asks Expo's push service to send a notification instead. |
+| ⑰ | 5c → 1c | The notification appears on your phone. |
+
+If anything fails (the page won't load, Groq is down), step ⑩ marks the
+capture *failed* with a message for you and an error reference, and steps
+⑪-⑰ tell your phone in the same way.
+
+## §4 · Open question: how the server finds out a card is ready
+
+**The problem:** the card is finished **inside the worker** (group 4), but
+your phone's live connection is to the **server** (group 2). They are two
+separate programs, usually on separate machines, so something has to carry
+"this capture is done" from one to the other. In section 3 this is step ⑪.
+
+```mermaid
+flowchart LR
+  subgraph OA["Option A · The worker tells the server directly"]
+    a1["4 · Worker"] -->|"finishes a card, then calls a<br/>private server address:<br/>capture 42 is done"| a2["2 · Server"]
+    a2 -->|"tells the open app"| a3["1 · Phone"]
+  end
+  subgraph OB["Option B · The server checks the database: recommended"]
+    b1["4 · Worker"] -->|"marks capture 42 done"| b2[("3a · Captures table")]
+    b3["2 · Server"] -->|"every 2 seconds:<br/>anything newly done?"| b2
+    b3 -->|"tells the open app"| b4["1 · Phone"]
+  end
+  subgraph OC["Option C · A message service in the middle"]
+    c1["4 · Worker"] -->|"posts: capture 42 is done"| c2[("Redis message service")]
+    c2 -->|"passes the message on"| c3["2 · Server"]
+    c3 -->|"tells the open app"| c4["1 · Phone"]
   end
 
   classDef pick fill:#fde68a,stroke:#b45309,stroke-width:3px,color:#1f2937
   class b3 pick
 ```
 
-| | (a) Worker calls the API | **(b) API checks the database** | (c) Message broker |
+| | Option A: worker tells the server | **Option B: server checks the database** | Option C: message service |
 |---|---|---|---|
-| Delay | Instant | Up to ~2 s (the card itself takes several seconds anyway) | Instant |
-| New things to build | An internal endpoint, and a secret to stop anyone else calling it on a public API | A small background loop in the API | A Redis server to run and pay for |
-| If the API restarts | The Worker's call fails: retry logic needed | Nothing lost: it picks up where it left off | Messages can be lost unless stored |
-| Two copies of the API (AWS scaling) | Only the copy that got the call tells its phones; others miss it | **Works:** each copy checks and tells its own connected phones | Works |
+| Delay | None | Up to 2 seconds (the card itself takes several seconds anyway) | None |
+| Extra things to build | A private address on the server, plus a password so nobody else can call it | A small loop in the server | A Redis server to run and pay for |
+| If the server restarts | The worker's call fails, so it needs retrying | Nothing is lost: it carries on where it left off | Messages can be lost unless stored |
+| If two copies of the server run | Only the copy that got the call tells its phones | **Works:** each copy checks and tells its own phones | Works |
 
-## §4 · Programs and libraries: where scraping lives (D12)
+## §5 · Programs and libraries: where scraping lives
 
-**Short answer: the scraping project is a C# library, not a separate service,
-so nothing talks to it through an API.** A library is a `.dll` of code that's
-**compiled into** a program. The Worker calls it with ordinary method calls
-inside its own process, as fast as calling any other function. Separate
-programs (the API and the Worker) can't call each other's methods; they
-communicate through something shared, here the database.
+**The scraping library is a library, not a separate service, so nothing
+talks to it through an API.** It's code built into the worker program.
+The worker calls it like any other function, inside the same running
+program. Separate programs, like the server and the worker, can't call each
+other's functions; they meet only through the database.
 
 ```mermaid
 flowchart TB
-  subgraph WP["Plannr.Worker: one running program (one process)"]
-    w1["Worker's own code: the job loop"]
-    subgraph LIBS["Libraries compiled into it: plain method calls, no network"]
-      core["Plannr.Core<br/>ExtractionPipeline, JSON-LD mapper, normaliser"]
-      scrape["Plannr.Infrastructure.Scraping<br/>page fetchers, retrievers, SSRF guard<br/>new at M4"]
-      infra["Plannr.Infrastructure<br/>Groq client, database, logging"]
+  subgraph WP["4 · Background worker: one program, running on its own"]
+    w1["4a · Job loop<br/>the worker's own code"]
+    subgraph LIBS["Libraries built into the worker: plain function calls, no network"]
+      core["Core library<br/>the extraction pipeline"]
+      scrape["Scraping library<br/>fetches pages, runs the safety guard"]
+      infra["Infrastructure library<br/>AI client, database access, logging"]
     end
-    w1 -->|"pipeline.ExtractFromLinkAsync(url)"| core
-    core -->|"retriever.RetrieveAsync(url)"| scrape
-    core -->|"llm.ExtractAsync(content)"| infra
+    w1 -->|"starts a capture:<br/>ExtractFromLinkAsync(link)"| core
+    core -->|"gets the page's content:<br/>RetrieveAsync(link)"| scrape
+    core -->|"asks for missing details:<br/>ExtractAsync(content)"| infra
   end
 
-  chrome["Chromium: its own process,<br/>started and driven by Playwright"]
-  scrape -->|"Playwright's protocol"| chrome
+  chrome["Chromium: the hidden browser,<br/>a separate program"]
+  scrape -->|"opens pages that need JavaScript in it"| chrome
 
-  subgraph AP["Plannr.Api: a different program"]
-    api["API's own code: endpoints, hub"]
-    core2["Plannr.Core"]
-    infra2["Plannr.Infrastructure"]
-    api --> core2
-    api --> infra2
+  subgraph AP["2 · Server (API): a different program"]
+    api["The server's own code"]
+    core2["Core library"]
+    infra2["Infrastructure library"]
+    api -->|"checks shared links with"| core2
+    api -->|"reads and writes the database with"| infra2
   end
 
-  db[("MySQL")]
-  WP -.-|"the only link between<br/>the two programs"| db
+  db[("3 · Database")]
+  WP -.-|"the only place the two<br/>programs meet: both read<br/>and write the database"| db
   AP -.- db
-
-  classDef question fill:#fde68a,stroke:#b45309,stroke-width:3px,color:#1f2937
-  class scrape question
 ```
 
-**Why split scraping out of `Plannr.Infrastructure` at all:** today the API
-references Infrastructure, which contains the Playwright code, so the API's
-build carries Playwright's ~130 MB driver though it never opens a page. Once
-scraping is its own library that **only the Worker and Eval reference**:
-- the API's Docker image is smaller and quicker to deploy, with fewer packages to keep patched;
-- the API **can't** call browser code even by mistake (the compiler won't find it), which enforces the plan's rule that a crashed browser mustn't take the API down.
+**Why scraping is its own library:** the browser code is large (about
+130 MB with its driver) and the server never opens a web page. Kept in its
+own library that **only the worker and Eval use**:
+- the server stays small and quick to deploy, with less to keep up to date;
+- the server **can't** run browser code even by mistake, because it doesn't contain it, so a crashed browser can never take the server down.
 
-Which project may use which (arrows point at what's used):
+## §6 · Which part may use which
+
+Arrows point at the code being used.
 
 ```mermaid
 flowchart BT
-  core["Plannr.Core<br/>domain: no outside world"]
-  infra["Plannr.Infrastructure<br/>Groq, database, logging"]
-  scrape["Plannr.Infrastructure.Scraping<br/>M4"]
-  api["Plannr.Api"]
-  worker["Plannr.Worker<br/>M4"]
-  eval["Plannr.Eval"]
+  core["Core library<br/>Plannr's rules: no outside connections"]
+  infra["Infrastructure library<br/>AI, database, logging"]
+  scrape["Scraping library<br/>fetching web pages"]
+  api["Server program (API)"]
+  worker["Worker program"]
+  eval["Eval tool"]
 
-  infra --> core
-  scrape --> core
-  scrape --> infra
-  api --> core
-  api --> infra
-  worker --> core
-  worker --> infra
-  worker --> scrape
-  eval --> core
-  eval --> infra
-  eval --> scrape
-  api -.->|"not allowed"| scrape
-
-  classDef question fill:#fde68a,stroke:#b45309,stroke-width:3px,color:#1f2937
-  class scrape question
+  infra -->|"uses"| core
+  scrape -->|"uses"| core
+  scrape -->|"uses"| infra
+  api -->|"uses"| core
+  api -->|"uses"| infra
+  worker -->|"uses"| core
+  worker -->|"uses"| infra
+  worker -->|"uses"| scrape
+  eval -->|"uses"| core
+  eval -->|"uses"| infra
+  eval -->|"uses"| scrape
+  api -.->|"not allowed to use"| scrape
 ```
 
-## §5 · Outside connections behind interfaces (D40)
+## §7 · Outside connections behind interfaces
 
-Your rule, as in Applr: **everything that talks to the outside world sits
-behind an interface**, so `Program.cs` registers the real thing and tests
-register a fake through the same dependency injection. The code that uses it
-only ever sees the interface.
+**The rule:** everything that reaches outside the program sits behind an
+interface. The real program is set up to use the real thing; tests are set
+up to use a fake, through the same dependency injection. The code in the
+middle only knows the interface, so it works with either.
 
 ```mermaid
 flowchart LR
-  pipe["ExtractionPipeline<br/>only knows the interface"] --> iface{{"ILlmExtractor"}}
-  iface -->|"Program.cs: AddPlannrLlm(...)"| real["GroqLlmExtractor<br/>real Groq over HTTPS"]
-  iface -->|"tests: new FakeLlm(...)"| fake["FakeLlm<br/>canned answers, no network"]
+  pipe["4b · Extraction pipeline<br/>knows only the interface"] -->|"asks for the missing fields through"| iface{{"ILlmExtractor<br/>the interface"}}
+  iface -->|"in the real program,<br/>answered by"| real["GroqLlmExtractor<br/>calls Groq over the internet"]
+  iface -->|"in tests,<br/>answered by"| fake["FakeLlm<br/>returns prepared answers,<br/>no internet"]
 ```
 
-| Outside thing | Interface | Real (Program.cs) | Fake (tests) | Status |
-|---|---|---|---|---|
-| Web pages over HTTP | `IPageFetcher` | `HttpPageFetcher` | `FixtureFetcher`, stub HTTP handler | built |
-| Chromium | `IBrowserPageFetcher` | `PlaywrightPageFetcher` | `FakeFetcher` | built |
-| Groq | `IGroqApi` (Refit), `ILlmExtractor` | Refit client, `GroqLlmExtractor` | `FakeGroqApi`, `FakeLlm` | built |
-| The clock | `TimeProvider` | `TimeProvider.System` | `FakeTimeProvider` | built |
-| DNS (the SSRF guard's lookup) | none yet: calls `Dns` directly | | the address check is tested directly | **gap: add `IHostResolver`** |
-| MySQL | one repository interface per table (D34) | EF Core repositories | in-memory fakes / test database | M3+ |
-| Job queue | `ICaptureQueue` | `MySqlCaptureQueue` | in-memory queue | M4 |
-| Telling the phone | `INotificationService` | SignalR + Expo push | recording fake | M4 |
-| Expo push | `IExpoPushApi` (Refit) | Refit client | fake | M7 |
-| TikTok oEmbed | `ITikTokOEmbedApi` (Refit) | Refit client | fake | M6 |
-| YouTube Data API | `IYouTubeDataApi` (Refit) | Refit client | fake | T2 |
+| Outside thing | Interface | Real version | Test version |
+|---|---|---|---|
+| Web pages | `IPageFetcher` | `HttpPageFetcher` | serves saved pages |
+| The hidden browser | `IBrowserPageFetcher` | `PlaywrightPageFetcher` | returns prepared HTML |
+| Groq | `IGroqApi`, `ILlmExtractor` | Groq over HTTPS | prepared answers |
+| The clock | `TimeProvider` | the real clock | a clock the test moves |
+| Address lookups (DNS) | `IHostResolver`, still to be added: the safety guard calls DNS directly | the real DNS | prepared addresses |
+| The database | one interface per table | MySQL | in-memory tables |
+| The list of waiting captures | `ICaptureQueue` | the captures table | an in-memory list |
+| Telling the phone | `INotificationService` | live updates hub + Expo push | records what was sent |
+| Expo push | `IExpoPushApi` | Expo over HTTPS | records what was sent |
+| TikTok | `ITikTokOEmbedApi` | TikTok over HTTPS | prepared captions |
+| YouTube | `IYouTubeDataApi` | YouTube over HTTPS | prepared descriptions |
 
-## §6 · Getting the app onto your phone (question 13, from first principles)
+## §8 · Getting the app onto your phone
 
-**Three layers.** We write the app in **TypeScript**. **React Native** turns
-our screens into real Android screens (not a web page in a browser).
-**Expo** is a toolkit on top: ready-made modules (notifications, secure
-storage, calendar, share handling) and **EAS**, a free cloud service that
-builds the installable Android app (an **APK**) so you don't need Android
-Studio.
+**Three layers.** We write the app in TypeScript. **React Native** turns
+our screens into real Android screens. **Expo** adds ready-made modules
+(notifications, secure storage, share handling) and **EAS**, its free build
+service, which makes the installable app file (the **APK**) so you don't
+need Android Studio.
 
 An Android app has two parts:
-- a **native part**, fixed at the moment the app is built. It includes the app's *manifest*, which tells Android what the app can do, such as "I can receive shared links";
+- a **native part**, fixed at the moment the app file is built. It includes the app's *manifest*, which tells Android what the app can do, such as "I accept shared links";
 - a **JavaScript part**: our code, which can be swapped while developing.
 
 ```mermaid
 flowchart TB
-  ts["Our TypeScript code<br/>screens, API client, share handling"]
-  rn["React Native<br/>turns our screens into real Android views"]
-  mods["Expo modules<br/>notifications, secure storage, share intent"]
-  subgraph APK["The installable app (APK)"]
-    native["Native part: fixed when built<br/>its manifest says 'I accept shared links'"]
+  ts["Our TypeScript code<br/>screens, server client, share handling"]
+  rn["React Native<br/>turns our screens into real Android screens"]
+  mods["Expo modules<br/>notifications, secure storage, share handling"]
+  subgraph APK["The installable app file (APK)"]
+    native["Native part: fixed when the file is built<br/>includes the line: I accept shared links"]
     js["JavaScript part: our code"]
   end
-  eas["EAS Build<br/>Expo's servers build the APK"]
-  ts --> rn
-  rn --> js
-  mods --> native
-  eas --> APK
+  eas["EAS: Expo's build servers"]
+  ts -->|"is run on the phone by"| rn
+  rn -->|"is packed into the file as"| js
+  mods -->|"add their native pieces to"| native
+  eas -->|"builds the whole file"| APK
 ```
 
-**Why the share sheet decides everything.** When you tap *Share* in TikTok,
+**Why the share sheet decides everything.** When you tap Share in TikTok,
 Android looks through every installed app's manifest for "I accept shared
 text" and lists those apps. Plannr only appears if **its own** manifest
-says so:
+says so.
 
 ```mermaid
 sequenceDiagram
-  actor U as You
+  actor You
   participant TT as TikTok
   participant OS as Android
   participant PL as Plannr app
-  U->>TT: Tap Share on a video
-  TT->>OS: Share this text: https://vm.tiktok.com/...
-  OS->>OS: Which installed apps declare they accept shared text?
-  OS-->>U: Share sheet lists them, Plannr included
-  U->>OS: Tap Plannr
-  OS->>PL: Open Plannr with the link
-  PL->>PL: expo-share-intent hands the link to our code (P1)
-  PL-->>U: A "saving" card, at once
+  You->>TT: Tap Share on a video
+  TT->>OS: Share this text, a TikTok link
+  OS->>OS: Look for installed apps whose manifest accepts shared text
+  OS-->>You: Show the share sheet, Plannr included
+  You->>OS: Tap Plannr
+  OS->>PL: Open Plannr and hand it the link
+  PL->>PL: The share handling module passes the link to our code (1a)
+  PL-->>You: Show a "saving" card at once
 ```
 
 **Three ways to run the app:**
 
 ```mermaid
 flowchart LR
-  subgraph GO["1 · Expo Go, from the Play Store"]
+  subgraph GO["Expo Go, from the Play Store"]
     go1["Expo's own app, with Expo's manifest"]
     go2["Loads our JavaScript from the laptop"]
     go3["Can't be in the share sheet:<br/>the manifest is Expo's, not ours"]
   end
-  subgraph DEV["2 · Development build: what we need"]
-    dev1["Our own APK, built once by EAS<br/>with our manifest: share target"]
+  subgraph DEV["Development build: what we need"]
+    dev1["Our own app file, built once by EAS<br/>with our manifest: accepts shared links"]
     dev2["Still loads JavaScript live from the laptop:<br/>edit, save, see it on the phone in seconds"]
     dev3["Rebuilt only when native settings change"]
   end
-  subgraph REL["3 · Release build, for the user trial"]
+  subgraph REL["Release build, for other people"]
     rel1["Everything inside: no laptop needed"]
-    rel2["Sent to trial users as a download link"]
+    rel2["Sent to testers as a download link"]
   end
 
   classDef pick fill:#fde68a,stroke:#b45309,stroke-width:3px,color:#1f2937
@@ -369,64 +385,56 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-  laptop["Your laptop<br/>eas build --profile development"] -->|"uploads the project"| cloud["EAS: Expo's build servers<br/>builds the APK"]
-  cloud -->|"download link or QR code"| phone["Your Android phone<br/>asks: allow installing apps from this source?"]
-  laptop -->|"while developing: our JavaScript over Wi-Fi"| phone
+  laptop["Your laptop"] -->|"eas build: uploads the project"| cloud["EAS: Expo's build servers"]
+  cloud -->|"builds the app file and gives<br/>a download link or QR code"| phone["Your Android phone"]
+  phone -->|"asks your permission to install<br/>an app from this source"| installed["Plannr installed"]
+  laptop -->|"while we work: sends the latest<br/>JavaScript over Wi-Fi"| installed
 ```
 
-**So the three things I asked for are:**
-1. **A free account at expo.dev**: EAS builds run under it.
-2. **Your Android version** (Settings → About phone): to check the share-intent module supports it.
-3. **Whether your phone lets you install an app from a download link**: Android asks for permission ("install unknown apps"); some work or school-managed phones block it.
-
-## §7 · Your approval before anything reaches `main`
+## §9 · Approving changes before they reach `main`
 
 ```mermaid
 flowchart LR
-  b["Feature branch<br/>I push changes here"] --> pr["Pull request into main"]
-  pr --> ci{"CI passes?<br/>Build, Unit tests, Integration tests"}
-  ci -->|"no"| fix["I fix it on the branch"]
-  fix --> pr
-  ci -->|"yes"| you{"You review the pull request"}
-  you -->|"you click Merge"| main["main"]
-  you -->|"you ask for changes"| fix
-  main --> dep["CI on main, deploy job: Term 2"]
+  b["A branch with my changes"] -->|"I open a pull request into main"| pr["Pull request"]
+  pr -->|"GitHub runs the automatic checks"| ci{"Checks pass?"}
+  ci -->|"no: I fix it on the branch"| b
+  ci -->|"yes: waits for you"| you{"You review the changes"}
+  you -->|"you ask for changes"| b
+  you -->|"you click Merge: your approval"| main["main"]
+  main -->|"GitHub runs the checks again,<br/>then the deploy step"| dep["Deploy step"]
 
   classDef pick fill:#fde68a,stroke:#b45309,stroke-width:3px,color:#1f2937
   class you pick
 ```
 
-**It isn't set up yet;** it needs the ruleset from our chat, which only you
-can create. One GitHub detail decides how: **GitHub never lets the author of
-a pull request approve it**, and my commits are pushed with your git login,
-so the pull requests are yours. A rule of "1 approval required" would
-therefore block every merge. Instead:
-- the ruleset requires a **pull request** and **passing CI** for `main`, and no direct pushes;
-- **your click on Merge is the approval**: I never merge, so nothing reaches `main` without you.
+**How it's switched on:** a rule on GitHub (a *ruleset*) for `main` that
+requires a pull request and passing checks, and blocks direct pushes. Only
+you can create it. **GitHub never lets the author of a pull request approve
+it**, and my changes go up under your GitHub login, so the pull requests
+are yours. A rule requiring "1 approval" would block every merge. Instead,
+**your click on Merge is the approval**: I never merge, so nothing reaches
+`main` without you. Formal "Approve" reviews would need a second GitHub
+account for my changes.
 
-If you later want formal "Approve" reviews, the usual way is a second GitHub
-account for automated changes.
-
-## §8 · CI pipeline
+## §10 · Automatic checks on every change
 
 ```mermaid
 flowchart LR
-  push["Push or pull request"] --> build["Build"]
-  build --> unit["Unit tests"]
-  unit --> integ["Integration tests<br/>real Chromium"]
-  integ --> deploy["Deploy<br/>placeholder, main only"]
+  push["A change is pushed<br/>or a pull request opened"] -->|"GitHub starts"| build["Build<br/>compile everything"]
+  build -->|"if it compiles"| unit["Unit tests<br/>fast checks, no internet"]
+  unit -->|"if they pass"| integ["Integration tests<br/>with the real hidden browser"]
+  integ -->|"if they pass, on main only"| deploy["Deploy step<br/>a placeholder"]
 ```
 
-Each stage waits for the one before and is skipped if it fails. The runner
-is pinned to Ubuntu 24.04 (D31).
+Each stage runs only if the one before passed. They run on a fresh Ubuntu
+24.04 machine each time.
 
-## §9 · The data pool and scoring (M2, next)
+## §11 · Measuring how accurate extraction is
 
 ```mermaid
 flowchart LR
-  links["100 links you collect<br/>events, web, TikTok, screenshots"] --> snap["Eval: snapshot<br/>save each page once"]
-  snap --> pool[("Data pool<br/>saved pages + labels")]
-  label["You and a second checker<br/>write the expected fields"] --> pool
-  pool --> score["Eval: score<br/>the same ExtractionPipeline as the Worker, W2"]
-  score --> report["Report for P4<br/>accuracy per link type vs G3"]
+  links["Real links you collect<br/>events, web pages, TikToks, screenshots"] -->|"Eval saves each page once,<br/>because events expire"| pool[("Data pool<br/>saved pages and the right answers")]
+  label["You and a second checker"] -->|"write down the right answer<br/>for each link"| pool
+  pool -->|"Eval runs the same extraction<br/>as the worker on every saved page"| score["Eval: score"]
+  score -->|"compares Plannr's cards with the<br/>right answers, per kind of link"| report["Accuracy report"]
 ```

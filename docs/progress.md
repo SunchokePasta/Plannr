@@ -74,7 +74,7 @@ labelling.
 
 ## Needs you
 
-- **Branch protection:** the ruleset in `architecture.md` §7 (pull request + passing CI; your Merge click is the approval). Until it's on, I commit locally and ask before pushing to `main`.
+- **Branch protection:** the ruleset in `architecture.md` §9 (pull request + passing CI; your Merge click is the approval). Until it's on, I commit locally and ask before pushing to `main`.
 - **Data pool:** the 100 links, the scoring rules, where snapshots live (M2 below).
 - **Docker** (D38): local MySQL80 instead, or enable virtualisation and install Docker.
 - **Review** `decisions.md` (entries marked `review` or `question`) and the open questions in `structure.json`.
