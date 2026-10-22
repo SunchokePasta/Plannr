@@ -21,757 +21,119 @@
     "Could": "Only if time allows"
   },
   "entries": [
-    {
-      "path": "backend/src/Plannr.Core/Entities",
-      "kind": "folder",
-      "milestone": "M3",
-      "purpose": "Database entities (plain classes; their EF mapping lives in Infrastructure/Data/Configurations)."
-    },
-    {
-      "path": "backend/src/Plannr.Core/Entities/ActivityCard.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "A saved card; a user's wishlist is their cards. Created from a CardDraft.",
-      "connects": [
-        "backend/src/Plannr.Core/Capture/CardDraft.cs",
-        "backend/src/Plannr.Core/Entities/CardFieldFlag.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Core/Entities/CardFieldFlag.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "A stored FieldFlag on a card; cleared when the user edits that field.",
-      "connects": [
-        "backend/src/Plannr.Core/Capture/FieldFlag.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Core/Entities/Capture.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "One shared link or screenshot and its processing state. The Captures table doubles as the Worker's job queue.",
-      "connects": [
-        "backend/src/Plannr.Core/Entities/CaptureStatus.cs",
-        "backend/src/Plannr.Infrastructure/Queue/MySqlCaptureQueue.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Core/Entities/CaptureStatus.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "Pending, Processing, Done, Failed."
-    },
-    {
-      "path": "backend/src/Plannr.Core/Entities/Group.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "A friend group; its invite code doubles as a share link.",
-      "connects": [
-        "backend/src/Plannr.Core/Entities/GroupMember.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Core/Entities/GroupMember.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "A user in a group, with a role. Composite key (GroupId, UserId).",
-      "connects": [
-        "backend/src/Plannr.Core/Entities/GroupRole.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Core/Entities/GroupRole.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Owner or Member."
-    },
-    {
-      "path": "backend/src/Plannr.Core/Entities/Plan.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "A card sent to a group: organiser, respond-by date, confirmed date.",
-      "connects": [
-        "backend/src/Plannr.Core/Entities/ActivityCard.cs",
-        "backend/src/Plannr.Core/Entities/Group.cs",
-        "backend/src/Plannr.Core/Entities/PlanStatus.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Core/Entities/PlanStatus.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Open, Confirmed, Cancelled."
-    },
-    {
-      "path": "backend/src/Plannr.Core/Entities/PlanResponse.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "A member's yes/no. Declines are visible to the organiser only (spec: Social).",
-      "connects": [
-        "backend/src/Plannr.Core/Entities/Plan.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Core/Entities/DeviceToken.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "One Expo push token per device, for notifications when the app is closed."
-    },
-    {
-      "path": "backend/src/Plannr.Core/Entities/CardDateOption.cs",
-      "kind": "stub",
-      "milestone": "T2",
-      "purpose": "Several possible dates for one card (Should: date-range responses)."
-    },
-    {
-      "path": "backend/src/Plannr.Core/Entities/PlanDateResponse.cs",
-      "kind": "stub",
-      "milestone": "T2",
-      "purpose": "Which of a card's dates a member can attend (Should).",
-      "connects": [
-        "backend/src/Plannr.Core/Entities/CardDateOption.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Core/Entities/Reminder.cs",
-      "kind": "stub",
-      "milestone": "T2",
-      "purpose": "A reminder for a solo activity (Should: reminders)."
-    },
-    {
-      "path": "backend/src/Plannr.Core/Interfaces/ICaptureQueue.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "Enqueue a capture; claim the next pending one. MySQL table now, Amazon SQS later behind the same interface."
-    },
-    {
-      "path": "backend/src/Plannr.Core/Interfaces/INotificationService.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "Tell a user something happened: SignalR when their app is open, Expo push when it's closed."
-    },
-    {
-      "path": "backend/src/Plannr.Core/Interfaces/ICaptureRepository.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "Captures table access (one repository per table, as in Applr)."
-    },
-    {
-      "path": "backend/src/Plannr.Core/Interfaces/ICardRepository.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "ActivityCards + CardFieldFlags access."
-    },
-    {
-      "path": "backend/src/Plannr.Core/Interfaces/IGroupRepository.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Groups + GroupMembers access."
-    },
-    {
-      "path": "backend/src/Plannr.Core/Interfaces/IPlanRepository.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Plans + PlanResponses access."
-    },
-    {
-      "path": "backend/src/Plannr.Core/Capture/CaptureService.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "POST /captures: classify the link (unsupported -> 400 at once), store a Pending capture, enqueue it.",
-      "connects": [
-        "backend/src/Plannr.Core/Capture/LinkClassifier.cs",
-        "backend/src/Plannr.Core/Interfaces/ICaptureQueue.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Core/Planning/PlanService.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Create plans, record responses, confirm a date; notifies members.",
-      "connects": [
-        "backend/src/Plannr.Core/Interfaces/IPlanRepository.cs",
-        "backend/src/Plannr.Core/Interfaces/INotificationService.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Core/Planning/DateSelector.cs",
-      "kind": "stub",
-      "milestone": "T2",
-      "purpose": "The earliest date the most members can attend (Should: automatic date selection)."
-    },
-    {
-      "path": "backend/src/Plannr.Core/Exceptions/EntityNotFoundException.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "A card/group/plan that doesn't exist (or isn't yours): 404 in the middleware.",
-      "connects": [
-        "backend/src/Plannr.Api/Middleware/ExceptionHandlingMiddleware.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Core/Exceptions/NotAllowedException.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "Allowed to see it but not to do that (e.g. confirm someone else's plan): 403.",
-      "connects": [
-        "backend/src/Plannr.Api/Middleware/ExceptionHandlingMiddleware.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Data/PlannrDbContext.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "EF Core context on MySQL (Pomelo): Identity's tables plus Plannr's.",
-      "question": "Pomelo's EF Core 10 support: confirm a stable release first, or stay on EF Core 9 as Applr does (open item from the plan)."
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Data/Configurations/ActivityCardConfiguration.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "Table/column mapping for ActivityCards and CardFieldFlags.",
-      "connects": [
-        "backend/src/Plannr.Core/Entities/ActivityCard.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Data/Configurations/CaptureConfiguration.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "Mapping for Captures, with the (Status, CreatedAt) index the queue polls.",
-      "connects": [
-        "backend/src/Plannr.Core/Entities/Capture.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Data/Configurations/GroupConfiguration.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Mapping for Groups and GroupMembers.",
-      "connects": [
-        "backend/src/Plannr.Core/Entities/Group.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Data/Configurations/PlanConfiguration.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Mapping for Plans and PlanResponses.",
-      "connects": [
-        "backend/src/Plannr.Core/Entities/Plan.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Data/Migrations",
-      "kind": "generated",
-      "milestone": "M3",
-      "purpose": "Created by 'dotnet ef migrations add InitialCreate'."
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Data/Repositories/CardRepository.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "ICardRepository on EF Core.",
-      "connects": [
-        "backend/src/Plannr.Core/Interfaces/ICardRepository.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Data/Repositories/CaptureRepository.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "ICaptureRepository on EF Core.",
-      "connects": [
-        "backend/src/Plannr.Core/Interfaces/ICaptureRepository.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Data/Repositories/GroupRepository.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "IGroupRepository on EF Core.",
-      "connects": [
-        "backend/src/Plannr.Core/Interfaces/IGroupRepository.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Data/Repositories/PlanRepository.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "IPlanRepository on EF Core.",
-      "connects": [
-        "backend/src/Plannr.Core/Interfaces/IPlanRepository.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Identity/PlannrUser.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "ASP.NET Core Identity user plus DisplayName."
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Identity/JwtTokenService.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "Issues access and refresh tokens.",
-      "connects": [
-        "backend/src/Plannr.Infrastructure/Options/JwtOptions.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Options/JwtOptions.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "Issuer, audience, signing key (key from user-secrets / SSM, never a file)."
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Queue/MySqlCaptureQueue.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "ICaptureQueue over the Captures table: claims rows with SELECT ... FOR UPDATE SKIP LOCKED so two Workers never take the same one.",
-      "connects": [
-        "backend/src/Plannr.Core/Interfaces/ICaptureQueue.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Retrieval/HostRateLimiter.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "Spec: requests are rate-limited, per site (decision D10).",
-      "connects": [
-        "backend/src/Plannr.Infrastructure/Retrieval/HttpPageFetcher.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Retrieval/PageFetchCache.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "Spec: requests are cached, so the same link shared twice is fetched once (D10).",
-      "connects": [
-        "backend/src/Plannr.Infrastructure/Retrieval/WebPageRetriever.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Retrieval/TikTok/TikTokRetriever.cs",
-      "kind": "stub",
-      "milestone": "M6",
-      "purpose": "IContentRetriever for TikTok: oEmbed caption, then the page's location tag; caption only if scraping is blocked.",
-      "connects": [
-        "backend/src/Plannr.Infrastructure/Retrieval/TikTok/TikTokOEmbedClient.cs",
-        "backend/src/Plannr.Infrastructure/Retrieval/TikTok/TikTokPageScraper.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Retrieval/TikTok/TikTokOEmbedClient.cs",
-      "kind": "stub",
-      "milestone": "M6",
-      "purpose": "TikTok's official embed API: caption and profile link."
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Retrieval/TikTok/TikTokPageScraper.cs",
-      "kind": "stub",
-      "milestone": "M6",
-      "purpose": "Reads the location tag from the public video page's embedded JSON, via PlaywrightPageFetcher.",
-      "connects": [
-        "backend/src/Plannr.Infrastructure/Retrieval/PlaywrightPageFetcher.cs"
-      ],
-      "question": "Where the location tag sits in TikTok's page data (plan's proof-of-concept check; can change without notice)."
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Retrieval/BioLinkResolver.cs",
-      "kind": "stub",
-      "milestone": "T2",
-      "purpose": "Should: 'link in bio' posts. Profile -> bio link -> read as a web page. Never TikTok's /link redirect (robots.txt).",
-      "connects": [
-        "backend/src/Plannr.Infrastructure/Retrieval/WebPageRetriever.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Retrieval/YouTube/YouTubeRetriever.cs",
-      "kind": "stub",
-      "milestone": "T2",
-      "purpose": "Should: IContentRetriever for YouTube, from the video description.",
-      "connects": [
-        "backend/src/Plannr.Infrastructure/Retrieval/YouTube/YouTubeDataApiClient.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Retrieval/YouTube/YouTubeDataApiClient.cs",
-      "kind": "stub",
-      "milestone": "T2",
-      "purpose": "YouTube Data API v3 client (free tier key in user-secrets)."
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/Notifications/ExpoPushClient.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Calls Expo's push API for devices whose app is closed."
-    },
-    {
-      "path": "backend/src/Plannr.Infrastructure/DependencyInjection/DataServiceCollectionExtensions.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "AddPlannrData: DbContext, repositories, Identity stores.",
-      "connects": [
-        "backend/src/Plannr.Infrastructure/Data/PlannrDbContext.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Api/Controllers/AuthController.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "POST /api/v1/auth/register, /login, /refresh.",
-      "connects": [
-        "backend/src/Plannr.Infrastructure/Identity/JwtTokenService.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Api/Controllers/MeController.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "GET /api/v1/me; PUT /me/push-token (M7)."
-    },
-    {
-      "path": "backend/src/Plannr.Api/Controllers/CardsController.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "GET /cards (wishlist), GET/PATCH/DELETE /cards/{id}; editing a field clears its flag.",
-      "connects": [
-        "backend/src/Plannr.Core/Interfaces/ICardRepository.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Api/Controllers/CapturesController.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "POST /captures {url} -> 202, POST /captures/image (multipart), GET /captures/{id}.",
-      "connects": [
-        "backend/src/Plannr.Core/Capture/CaptureService.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Api/Controllers/GroupsController.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Create, list, join by invite code, remove members."
-    },
-    {
-      "path": "backend/src/Plannr.Api/Controllers/PlansController.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Create a plan, respond yes/no, confirm a date.",
-      "connects": [
-        "backend/src/Plannr.Core/Planning/PlanService.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Api/Controllers/RemindersController.cs",
-      "kind": "stub",
-      "milestone": "T2",
-      "purpose": "Should: POST /cards/{id}/reminders."
-    },
-    {
-      "path": "backend/src/Plannr.Api/Hubs/UpdatesHub.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "SignalR at /hubs/updates: CaptureCompleted, PlanCreated, ResponseAdded, PlanConfirmed."
-    },
-    {
-      "path": "backend/src/Plannr.Api/Notifications/SignalRNotificationService.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "INotificationService in the API process: hub message if the app is open, else Expo push.",
-      "connects": [
-        "backend/src/Plannr.Api/Hubs/UpdatesHub.cs",
-        "backend/src/Plannr.Infrastructure/Notifications/ExpoPushClient.cs"
-      ],
-      "question": "How does the Worker (a separate process) get 'capture done' to the hub? (a) Worker calls an internal API endpoint, (b) the API polls Captures for newly Done rows, (c) a SignalR backplane such as Redis."
-    },
-    {
-      "path": "backend/src/Plannr.Api/Contracts/AuthContracts.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "Request/response shapes for /auth (what the OpenAPI document and the app's client are generated from)."
-    },
-    {
-      "path": "backend/src/Plannr.Api/Contracts/CardContracts.cs",
-      "kind": "stub",
-      "milestone": "M3",
-      "purpose": "Request/response shapes for /cards."
-    },
-    {
-      "path": "backend/src/Plannr.Api/Contracts/CaptureContracts.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "Request/response shapes for /captures."
-    },
-    {
-      "path": "backend/src/Plannr.Api/Contracts/GroupContracts.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Request/response shapes for /groups."
-    },
-    {
-      "path": "backend/src/Plannr.Api/Contracts/PlanContracts.cs",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Request/response shapes for /plans."
-    },
-    {
-      "path": "backend/src/Plannr.Worker",
-      "kind": "folder",
-      "milestone": "M4",
-      "purpose": "The second program: claims Pending captures and runs ExtractionPipeline. Separate so Chromium's memory use and crashes can't take the API down."
-    },
-    {
-      "path": "backend/src/Plannr.Worker/Plannr.Worker.csproj",
-      "kind": "generated",
-      "milestone": "M4",
-      "purpose": "'dotnet new worker -n Plannr.Worker', then add to Plannr.slnx."
-    },
-    {
-      "path": "backend/src/Plannr.Worker/Program.cs",
-      "kind": "generated",
-      "milestone": "M4",
-      "purpose": "Created by dotnet new; then ErrorReference.Configure(WorkerProgram) first, as in the API and Eval."
-    },
-    {
-      "path": "backend/src/Plannr.Worker/CaptureJobProcessor.cs",
-      "kind": "stub",
-      "milestone": "M4",
-      "purpose": "Per job: run the pipeline, save card + flags, mark Done, or Failed with the user message and an error reference; then notify. The Worker's error boundary.",
-      "connects": [
-        "backend/src/Plannr.Core/Capture/ExtractionPipeline.cs",
-        "backend/src/Plannr.Core/Interfaces/ICaptureQueue.cs",
-        "backend/src/Plannr.Core/Interfaces/INotificationService.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Worker/ReminderSender.cs",
-      "kind": "stub",
-      "milestone": "T2",
-      "purpose": "Should: background job sending due reminders.",
-      "connects": [
-        "backend/src/Plannr.Core/Entities/Reminder.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Eval/SnapshotCommand.cs",
-      "kind": "stub",
-      "milestone": "M2",
-      "purpose": "'snapshot <url>': save a page once into the data pool, because events expire.",
-      "connects": [
-        "backend/src/Plannr.Eval/DataPool/SnapshotStore.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Eval/ScoreCommand.cs",
-      "kind": "stub",
-      "milestone": "M2",
-      "purpose": "'score': run the pipeline over the labelled set and report G3 per link type, LLM failures and browser fallbacks separately.",
-      "connects": [
-        "backend/src/Plannr.Core/Capture/ExtractionPipeline.cs",
-        "backend/src/Plannr.Eval/DataPool/DataPoolEntry.cs"
-      ]
-    },
-    {
-      "path": "backend/src/Plannr.Eval/DataPool/DataPoolEntry.cs",
-      "kind": "stub",
-      "milestone": "M2",
-      "purpose": "One labelled link: URL, link type, development or held-out set, the expected fields."
-    },
-    {
-      "path": "backend/src/Plannr.Eval/DataPool/SnapshotStore.cs",
-      "kind": "stub",
-      "milestone": "M2",
-      "purpose": "Reads and writes saved pages in the data pool folder.",
-      "connects": [
-        "data-pool/README.md"
-      ]
-    },
-    {
-      "path": "backend/tests/Plannr.Api.IntegrationTests",
-      "kind": "generated",
-      "milestone": "M3",
-      "purpose": "API tests against a real MySQL in Docker (Testcontainers); 'dotnet new xunit'.",
-      "question": "A separate project for database tests, or keep one test project with a Category? Docker is available on GitHub's runners; is it installed on your laptop?"
-    },
-    {
-      "path": "mobile",
-      "kind": "folder",
-      "milestone": "M5",
-      "purpose": "The Expo (React Native, TypeScript) app, Android first. Generator-owned files are 'generated' entries: run create-expo-app into a temporary folder and merge, since it refuses a non-empty one."
-    },
-    {
-      "path": "mobile/package.json",
-      "kind": "generated",
-      "milestone": "M5",
-      "purpose": "'npx create-expo-app' (Expo Router template); then expo-share-intent, @tanstack/react-query, @microsoft/signalr, expo-secure-store, expo-notifications, jest-expo."
-    },
-    {
-      "path": "mobile/app.json",
-      "kind": "generated",
-      "milestone": "M5",
-      "purpose": "Expo config: portrait only, the plannr:// scheme for deep links, Android intent filters (via expo-share-intent)."
-    },
-    {
-      "path": "mobile/tsconfig.json",
-      "kind": "generated",
-      "milestone": "M5",
-      "purpose": "Created by create-expo-app."
-    },
-    {
-      "path": "mobile/eas.json",
-      "kind": "generated",
-      "milestone": "M5",
-      "purpose": "'eas build:configure': the development build profile (share intent needs a dev build, not Expo Go)."
-    },
-    {
-      "path": "mobile/app/_layout.tsx",
-      "kind": "generated",
-      "milestone": "M5",
-      "purpose": "Root layout from the template; wraps the app in the query client, session and SignalR providers."
-    },
-    {
-      "path": "mobile/app/login.tsx",
-      "kind": "stub",
-      "milestone": "M5",
-      "purpose": "Log in / register.",
-      "connects": [
-        "mobile/src/auth/session.ts"
-      ]
-    },
-    {
-      "path": "mobile/app/(tabs)/wishlist.tsx",
-      "kind": "stub",
-      "milestone": "M5",
-      "purpose": "Wishlist tab: every saved card, 'processing' cards updating live.",
-      "connects": [
-        "mobile/src/api/client.ts",
-        "mobile/src/realtime/updates.ts"
-      ]
-    },
-    {
-      "path": "mobile/app/(tabs)/groups.tsx",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Groups tab."
-    },
-    {
-      "path": "mobile/app/(tabs)/plans.tsx",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Plans tab: invitations to answer, plans waiting on others."
-    },
-    {
-      "path": "mobile/app/card/[id]/index.tsx",
-      "kind": "stub",
-      "milestone": "M5",
-      "purpose": "Card detail; uncertain fields highlighted.",
-      "connects": [
-        "mobile/src/components/ActivityCardView.tsx"
-      ]
-    },
-    {
-      "path": "mobile/app/card/[id]/edit.tsx",
-      "kind": "stub",
-      "milestone": "M5",
-      "purpose": "Edit a card; saving a field clears its flag."
-    },
-    {
-      "path": "mobile/app/join/[code].tsx",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "Deep link plannr://join/{code}: join a group from an invite."
-    },
-    {
-      "path": "mobile/src/api/client.ts",
-      "kind": "stub",
-      "milestone": "M5",
-      "purpose": "Typed API client plus TanStack Query hooks.",
-      "connects": [
-        "mobile/src/api/schema.d.ts",
-        "mobile/src/api/ApiError.ts",
-        "mobile/src/auth/session.ts"
-      ]
-    },
-    {
-      "path": "mobile/src/api/schema.d.ts",
-      "kind": "generated",
-      "milestone": "M5",
-      "purpose": "openapi-typescript output from the API's OpenAPI document, so C# and app types never drift."
-    },
-    {
-      "path": "mobile/src/api/ApiError.ts",
-      "kind": "stub",
-      "milestone": "M5",
-      "purpose": "The app's one error type: reads ApiErrorResponse {message, reference, status}; shows the message and reference.",
-      "connects": [
-        "backend/src/Plannr.Api/Models/ApiErrorResponse.cs"
-      ]
-    },
-    {
-      "path": "mobile/src/diagnostics/errorReference.ts",
-      "kind": "stub",
-      "milestone": "M5",
-      "purpose": "References minted on the phone (program code 04); TypeScript copy of the code table.",
-      "connects": [
-        "backend/src/Plannr.Core/Diagnostics/ErrorReference.cs"
-      ]
-    },
-    {
-      "path": "mobile/src/auth/session.ts",
-      "kind": "stub",
-      "milestone": "M5",
-      "purpose": "JWT kept in expo-secure-store; refresh on 401."
-    },
-    {
-      "path": "mobile/src/share/useShareIntent.ts",
-      "kind": "stub",
-      "milestone": "M5",
-      "purpose": "Shared links/images from TikTok etc. -> POST /captures; returns at once so the share sheet never hangs.",
-      "question": "Does expo-share-intent support your Expo SDK version? (plan's proof-of-concept check)"
-    },
-    {
-      "path": "mobile/src/realtime/updates.ts",
-      "kind": "stub",
-      "milestone": "M5",
-      "purpose": "@microsoft/signalr connection to /hubs/updates.",
-      "connects": [
-        "backend/src/Plannr.Api/Hubs/UpdatesHub.cs"
-      ]
-    },
-    {
-      "path": "mobile/src/notifications/push.ts",
-      "kind": "stub",
-      "milestone": "M7",
-      "purpose": "expo-notifications: register the device's push token with PUT /me/push-token."
-    },
-    {
-      "path": "mobile/src/calendar/addToCalendar.ts",
-      "kind": "stub",
-      "milestone": "T2",
-      "purpose": "Should: add a confirmed plan to the phone's calendar (expo-calendar)."
-    },
-    {
-      "path": "mobile/src/components/ActivityCardView.tsx",
-      "kind": "stub",
-      "milestone": "M5",
-      "purpose": "One card: title, date, place, price, with flagged fields highlighted for correction."
-    },
-    {
-      "path": "data-pool",
-      "kind": "folder",
-      "milestone": "M2",
-      "purpose": "The labelled extraction data pool (P3): 100 links, 30 development + 70 held-out."
-    },
-    {
-      "path": "data-pool/README.md",
-      "kind": "stub",
-      "milestone": "M2",
-      "purpose": "How the pool is laid out and labelled.",
-      "question": "This repo is public: commit the labels and keep page snapshots out (gitignored), or keep the whole pool in a private repo?"
-    }
+    { "path": "backend/src/Plannr.Core/Entities", "kind": "folder", "milestone": "M3", "purpose": "Database entities (plain classes; their EF mapping lives in Infrastructure/Data/Configurations)." },
+    { "path": "backend/src/Plannr.Core/Entities/ActivityCard.cs", "kind": "stub", "milestone": "M3", "purpose": "A saved card; a user's wishlist is their cards. Created from a CardDraft.", "connects": ["backend/src/Plannr.Core/Capture/CardDraft.cs", "backend/src/Plannr.Core/Entities/CardFieldFlag.cs"] },
+    { "path": "backend/src/Plannr.Core/Entities/CardFieldFlag.cs", "kind": "stub", "milestone": "M3", "purpose": "A stored FieldFlag on a card; cleared when the user edits that field.", "connects": ["backend/src/Plannr.Core/Capture/FieldFlag.cs"] },
+    { "path": "backend/src/Plannr.Core/Entities/Capture.cs", "kind": "stub", "milestone": "M4", "purpose": "One shared link or screenshot and its processing state. The Captures table doubles as the Worker's job queue.", "connects": ["backend/src/Plannr.Core/Entities/CaptureStatus.cs", "backend/src/Plannr.Infrastructure/Queue/MySqlCaptureQueue.cs"] },
+    { "path": "backend/src/Plannr.Core/Entities/CaptureStatus.cs", "kind": "stub", "milestone": "M4", "purpose": "Pending, Processing, Done, Failed." },
+    { "path": "backend/src/Plannr.Core/Entities/Group.cs", "kind": "stub", "milestone": "M7", "purpose": "A friend group; its invite code doubles as a share link.", "connects": ["backend/src/Plannr.Core/Entities/GroupMember.cs"] },
+    { "path": "backend/src/Plannr.Core/Entities/GroupMember.cs", "kind": "stub", "milestone": "M7", "purpose": "A user in a group, with a role. Composite key (GroupId, UserId).", "connects": ["backend/src/Plannr.Core/Entities/GroupRole.cs"] },
+    { "path": "backend/src/Plannr.Core/Entities/GroupRole.cs", "kind": "stub", "milestone": "M7", "purpose": "Owner or Member." },
+    { "path": "backend/src/Plannr.Core/Entities/Plan.cs", "kind": "stub", "milestone": "M7", "purpose": "A card sent to a group: organiser, respond-by date, confirmed date.", "connects": ["backend/src/Plannr.Core/Entities/ActivityCard.cs", "backend/src/Plannr.Core/Entities/Group.cs", "backend/src/Plannr.Core/Entities/PlanStatus.cs"] },
+    { "path": "backend/src/Plannr.Core/Entities/PlanStatus.cs", "kind": "stub", "milestone": "M7", "purpose": "Open, Confirmed, Cancelled." },
+    { "path": "backend/src/Plannr.Core/Entities/PlanResponse.cs", "kind": "stub", "milestone": "M7", "purpose": "A member's yes/no. Declines are visible to the organiser only (spec: Social).", "connects": ["backend/src/Plannr.Core/Entities/Plan.cs"] },
+    { "path": "backend/src/Plannr.Core/Entities/DeviceToken.cs", "kind": "stub", "milestone": "M7", "purpose": "One Expo push token per device, for notifications when the app is closed." },
+    { "path": "backend/src/Plannr.Core/Entities/CardDateOption.cs", "kind": "stub", "milestone": "T2", "purpose": "Several possible dates for one card (Should: date-range responses)." },
+    { "path": "backend/src/Plannr.Core/Entities/PlanDateResponse.cs", "kind": "stub", "milestone": "T2", "purpose": "Which of a card's dates a member can attend (Should).", "connects": ["backend/src/Plannr.Core/Entities/CardDateOption.cs"] },
+    { "path": "backend/src/Plannr.Core/Entities/Reminder.cs", "kind": "stub", "milestone": "T2", "purpose": "A reminder for a solo activity (Should: reminders)." },
+
+    { "path": "backend/src/Plannr.Core/Interfaces/ICaptureQueue.cs", "kind": "stub", "milestone": "M4", "purpose": "Enqueue a capture; claim the next pending one. MySQL table now, Amazon SQS later behind the same interface." },
+    { "path": "backend/src/Plannr.Core/Interfaces/INotificationService.cs", "kind": "stub", "milestone": "M4", "purpose": "Tell a user something happened: SignalR when their app is open, Expo push when it's closed." },
+    { "path": "backend/src/Plannr.Core/Interfaces/ICaptureRepository.cs", "kind": "stub", "milestone": "M4", "purpose": "Captures table access (one repository per table, as in Applr)." },
+    { "path": "backend/src/Plannr.Core/Interfaces/ICardRepository.cs", "kind": "stub", "milestone": "M3", "purpose": "ActivityCards + CardFieldFlags access." },
+    { "path": "backend/src/Plannr.Core/Interfaces/IGroupRepository.cs", "kind": "stub", "milestone": "M7", "purpose": "Groups + GroupMembers access." },
+    { "path": "backend/src/Plannr.Core/Interfaces/IPlanRepository.cs", "kind": "stub", "milestone": "M7", "purpose": "Plans + PlanResponses access." },
+
+    { "path": "backend/src/Plannr.Core/Capture/CaptureService.cs", "kind": "stub", "milestone": "M4", "purpose": "POST /captures: classify the link (unsupported -> 400 at once), store a Pending capture, enqueue it.", "connects": ["backend/src/Plannr.Core/Capture/LinkClassifier.cs", "backend/src/Plannr.Core/Interfaces/ICaptureQueue.cs"] },
+    { "path": "backend/src/Plannr.Core/Planning/PlanService.cs", "kind": "stub", "milestone": "M7", "purpose": "Create plans, record responses, confirm a date; notifies members.", "connects": ["backend/src/Plannr.Core/Interfaces/IPlanRepository.cs", "backend/src/Plannr.Core/Interfaces/INotificationService.cs"] },
+    { "path": "backend/src/Plannr.Core/Planning/DateSelector.cs", "kind": "stub", "milestone": "T2", "purpose": "The earliest date the most members can attend (Should: automatic date selection)." },
+    { "path": "backend/src/Plannr.Core/Exceptions/EntityNotFoundException.cs", "kind": "stub", "milestone": "M3", "purpose": "A card/group/plan that doesn't exist (or isn't yours): 404 in the middleware.", "connects": ["backend/src/Plannr.Api/Middleware/ExceptionHandlingMiddleware.cs"] },
+    { "path": "backend/src/Plannr.Core/Exceptions/NotAllowedException.cs", "kind": "stub", "milestone": "M3", "purpose": "Allowed to see it but not to do that (e.g. confirm someone else's plan): 403.", "connects": ["backend/src/Plannr.Api/Middleware/ExceptionHandlingMiddleware.cs"] },
+
+    { "path": "backend/src/Plannr.Infrastructure/Data/PlannrDbContext.cs", "kind": "stub", "milestone": "M3", "purpose": "EF Core context on MySQL (Pomelo): Identity's tables plus Plannr's.", "question": "Pomelo's EF Core 10 support: confirm a stable release first, or stay on EF Core 9 as Applr does (open item from the plan)." },
+    { "path": "backend/src/Plannr.Infrastructure/Data/Configurations/ActivityCardConfiguration.cs", "kind": "stub", "milestone": "M3", "purpose": "Table/column mapping for ActivityCards and CardFieldFlags.", "connects": ["backend/src/Plannr.Core/Entities/ActivityCard.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Data/Configurations/CaptureConfiguration.cs", "kind": "stub", "milestone": "M4", "purpose": "Mapping for Captures, with the (Status, CreatedAt) index the queue polls.", "connects": ["backend/src/Plannr.Core/Entities/Capture.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Data/Configurations/GroupConfiguration.cs", "kind": "stub", "milestone": "M7", "purpose": "Mapping for Groups and GroupMembers.", "connects": ["backend/src/Plannr.Core/Entities/Group.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Data/Configurations/PlanConfiguration.cs", "kind": "stub", "milestone": "M7", "purpose": "Mapping for Plans and PlanResponses.", "connects": ["backend/src/Plannr.Core/Entities/Plan.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Data/Migrations", "kind": "generated", "milestone": "M3", "purpose": "Created by 'dotnet ef migrations add InitialCreate'." },
+    { "path": "backend/src/Plannr.Infrastructure/Data/Repositories/CardRepository.cs", "kind": "stub", "milestone": "M3", "purpose": "ICardRepository on EF Core.", "connects": ["backend/src/Plannr.Core/Interfaces/ICardRepository.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Data/Repositories/CaptureRepository.cs", "kind": "stub", "milestone": "M4", "purpose": "ICaptureRepository on EF Core.", "connects": ["backend/src/Plannr.Core/Interfaces/ICaptureRepository.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Data/Repositories/GroupRepository.cs", "kind": "stub", "milestone": "M7", "purpose": "IGroupRepository on EF Core.", "connects": ["backend/src/Plannr.Core/Interfaces/IGroupRepository.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Data/Repositories/PlanRepository.cs", "kind": "stub", "milestone": "M7", "purpose": "IPlanRepository on EF Core.", "connects": ["backend/src/Plannr.Core/Interfaces/IPlanRepository.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Identity/PlannrUser.cs", "kind": "stub", "milestone": "M3", "purpose": "ASP.NET Core Identity user plus DisplayName." },
+    { "path": "backend/src/Plannr.Infrastructure/Identity/JwtTokenService.cs", "kind": "stub", "milestone": "M3", "purpose": "Issues access and refresh tokens.", "connects": ["backend/src/Plannr.Infrastructure/Options/JwtOptions.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Options/JwtOptions.cs", "kind": "stub", "milestone": "M3", "purpose": "Issuer, audience, signing key (key from user-secrets / SSM, never a file)." },
+    { "path": "backend/src/Plannr.Infrastructure/Queue/MySqlCaptureQueue.cs", "kind": "stub", "milestone": "M4", "purpose": "ICaptureQueue over the Captures table: claims rows with SELECT ... FOR UPDATE SKIP LOCKED so two Workers never take the same one.", "connects": ["backend/src/Plannr.Core/Interfaces/ICaptureQueue.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Retrieval/HostRateLimiter.cs", "kind": "stub", "milestone": "M4", "purpose": "Spec: requests are rate-limited, per site (decision D10).", "connects": ["backend/src/Plannr.Infrastructure/Retrieval/HttpPageFetcher.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Retrieval/PageFetchCache.cs", "kind": "stub", "milestone": "M4", "purpose": "Spec: requests are cached, so the same link shared twice is fetched once (D10).", "connects": ["backend/src/Plannr.Infrastructure/Retrieval/WebPageRetriever.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Retrieval/TikTok/TikTokRetriever.cs", "kind": "stub", "milestone": "M6", "purpose": "IContentRetriever for TikTok: oEmbed caption, then the page's location tag; caption only if scraping is blocked.", "connects": ["backend/src/Plannr.Infrastructure/Retrieval/TikTok/TikTokOEmbedClient.cs", "backend/src/Plannr.Infrastructure/Retrieval/TikTok/TikTokPageScraper.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Retrieval/TikTok/TikTokOEmbedClient.cs", "kind": "stub", "milestone": "M6", "purpose": "TikTok's official embed API: caption and profile link." },
+    { "path": "backend/src/Plannr.Infrastructure/Retrieval/TikTok/TikTokPageScraper.cs", "kind": "stub", "milestone": "M6", "purpose": "Reads the location tag from the public video page's embedded JSON, via PlaywrightPageFetcher.", "connects": ["backend/src/Plannr.Infrastructure/Retrieval/PlaywrightPageFetcher.cs"], "question": "Where the location tag sits in TikTok's page data (plan's proof-of-concept check; can change without notice)." },
+    { "path": "backend/src/Plannr.Infrastructure/Retrieval/BioLinkResolver.cs", "kind": "stub", "milestone": "T2", "purpose": "Should: 'link in bio' posts. Profile -> bio link -> read as a web page. Never TikTok's /link redirect (robots.txt).", "connects": ["backend/src/Plannr.Infrastructure/Retrieval/WebPageRetriever.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Retrieval/YouTube/YouTubeRetriever.cs", "kind": "stub", "milestone": "T2", "purpose": "Should: IContentRetriever for YouTube, from the video description.", "connects": ["backend/src/Plannr.Infrastructure/Retrieval/YouTube/YouTubeDataApiClient.cs"] },
+    { "path": "backend/src/Plannr.Infrastructure/Retrieval/YouTube/YouTubeDataApiClient.cs", "kind": "stub", "milestone": "T2", "purpose": "YouTube Data API v3 client (free tier key in user-secrets)." },
+    { "path": "backend/src/Plannr.Infrastructure/Notifications/ExpoPushClient.cs", "kind": "stub", "milestone": "M7", "purpose": "Calls Expo's push API for devices whose app is closed." },
+    { "path": "backend/src/Plannr.Infrastructure/DependencyInjection/DataServiceCollectionExtensions.cs", "kind": "stub", "milestone": "M3", "purpose": "AddPlannrData: DbContext, repositories, Identity stores.", "connects": ["backend/src/Plannr.Infrastructure/Data/PlannrDbContext.cs"] },
+
+    { "path": "backend/src/Plannr.Api/Controllers/AuthController.cs", "kind": "stub", "milestone": "M3", "purpose": "POST /api/v1/auth/register, /login, /refresh.", "connects": ["backend/src/Plannr.Infrastructure/Identity/JwtTokenService.cs"] },
+    { "path": "backend/src/Plannr.Api/Controllers/MeController.cs", "kind": "stub", "milestone": "M3", "purpose": "GET /api/v1/me; PUT /me/push-token (M7)." },
+    { "path": "backend/src/Plannr.Api/Controllers/CardsController.cs", "kind": "stub", "milestone": "M3", "purpose": "GET /cards (wishlist), GET/PATCH/DELETE /cards/{id}; editing a field clears its flag.", "connects": ["backend/src/Plannr.Core/Interfaces/ICardRepository.cs"] },
+    { "path": "backend/src/Plannr.Api/Controllers/CapturesController.cs", "kind": "stub", "milestone": "M4", "purpose": "POST /captures {url} -> 202, POST /captures/image (multipart), GET /captures/{id}.", "connects": ["backend/src/Plannr.Core/Capture/CaptureService.cs"] },
+    { "path": "backend/src/Plannr.Api/Controllers/GroupsController.cs", "kind": "stub", "milestone": "M7", "purpose": "Create, list, join by invite code, remove members." },
+    { "path": "backend/src/Plannr.Api/Controllers/PlansController.cs", "kind": "stub", "milestone": "M7", "purpose": "Create a plan, respond yes/no, confirm a date.", "connects": ["backend/src/Plannr.Core/Planning/PlanService.cs"] },
+    { "path": "backend/src/Plannr.Api/Controllers/RemindersController.cs", "kind": "stub", "milestone": "T2", "purpose": "Should: POST /cards/{id}/reminders." },
+    { "path": "backend/src/Plannr.Api/Hubs/UpdatesHub.cs", "kind": "stub", "milestone": "M4", "purpose": "SignalR at /hubs/updates: CaptureCompleted, PlanCreated, ResponseAdded, PlanConfirmed." },
+    { "path": "backend/src/Plannr.Api/Notifications/SignalRNotificationService.cs", "kind": "stub", "milestone": "M4", "purpose": "INotificationService in the API process: hub message if the app is open, else Expo push.", "connects": ["backend/src/Plannr.Api/Hubs/UpdatesHub.cs", "backend/src/Plannr.Infrastructure/Notifications/ExpoPushClient.cs"], "question": "How does the Worker (a separate process) get 'capture done' to the hub? (a) Worker calls an internal API endpoint, (b) the API polls Captures for newly Done rows, (c) a SignalR backplane such as Redis." },
+    { "path": "backend/src/Plannr.Api/Contracts/AuthContracts.cs", "kind": "stub", "milestone": "M3", "purpose": "Request/response shapes for /auth (what the OpenAPI document and the app's client are generated from)." },
+    { "path": "backend/src/Plannr.Api/Contracts/CardContracts.cs", "kind": "stub", "milestone": "M3", "purpose": "Request/response shapes for /cards." },
+    { "path": "backend/src/Plannr.Api/Contracts/CaptureContracts.cs", "kind": "stub", "milestone": "M4", "purpose": "Request/response shapes for /captures." },
+    { "path": "backend/src/Plannr.Api/Contracts/GroupContracts.cs", "kind": "stub", "milestone": "M7", "purpose": "Request/response shapes for /groups." },
+    { "path": "backend/src/Plannr.Api/Contracts/PlanContracts.cs", "kind": "stub", "milestone": "M7", "purpose": "Request/response shapes for /plans." },
+
+    { "path": "backend/src/Plannr.Worker", "kind": "folder", "milestone": "M4", "purpose": "The second program: claims Pending captures and runs ExtractionPipeline. Separate so Chromium's memory use and crashes can't take the API down." },
+    { "path": "backend/src/Plannr.Worker/Plannr.Worker.csproj", "kind": "generated", "milestone": "M4", "purpose": "'dotnet new worker -n Plannr.Worker', then add to Plannr.slnx." },
+    { "path": "backend/src/Plannr.Worker/Program.cs", "kind": "generated", "milestone": "M4", "purpose": "Created by dotnet new; then ErrorReference.Configure(WorkerProgram) first, as in the API and Eval." },
+    { "path": "backend/src/Plannr.Worker/CaptureJobProcessor.cs", "kind": "stub", "milestone": "M4", "purpose": "Per job: run the pipeline, save card + flags, mark Done, or Failed with the user message and an error reference; then notify. The Worker's error boundary.", "connects": ["backend/src/Plannr.Core/Capture/ExtractionPipeline.cs", "backend/src/Plannr.Core/Interfaces/ICaptureQueue.cs", "backend/src/Plannr.Core/Interfaces/INotificationService.cs"] },
+    { "path": "backend/src/Plannr.Worker/ReminderSender.cs", "kind": "stub", "milestone": "T2", "purpose": "Should: background job sending due reminders.", "connects": ["backend/src/Plannr.Core/Entities/Reminder.cs"] },
+
+    { "path": "backend/src/Plannr.Eval/SnapshotCommand.cs", "kind": "stub", "milestone": "M2", "purpose": "'snapshot <url>': save a page once into the data pool, because events expire.", "connects": ["backend/src/Plannr.Eval/DataPool/SnapshotStore.cs"] },
+    { "path": "backend/src/Plannr.Eval/ScoreCommand.cs", "kind": "stub", "milestone": "M2", "purpose": "'score': run the pipeline over the labelled set and report G3 per link type, LLM failures and browser fallbacks separately.", "connects": ["backend/src/Plannr.Core/Capture/ExtractionPipeline.cs", "backend/src/Plannr.Eval/DataPool/DataPoolEntry.cs"] },
+    { "path": "backend/src/Plannr.Eval/DataPool/DataPoolEntry.cs", "kind": "stub", "milestone": "M2", "purpose": "One labelled link: URL, link type, development or held-out set, the expected fields." },
+    { "path": "backend/src/Plannr.Eval/DataPool/SnapshotStore.cs", "kind": "stub", "milestone": "M2", "purpose": "Reads and writes saved pages in the data pool folder.", "connects": ["data-pool/README.md"] },
+
+    { "path": "backend/tests/Plannr.Api.IntegrationTests", "kind": "generated", "milestone": "M3", "purpose": "API tests against a real MySQL in Docker (Testcontainers); 'dotnet new xunit'.", "question": "A separate project for database tests, or keep one test project with a Category? Docker is available on GitHub's runners; is it installed on your laptop?" },
+
+    { "path": "mobile", "kind": "folder", "milestone": "M5", "purpose": "The Expo (React Native, TypeScript) app, Android first. Generator-owned files are 'generated' entries: run create-expo-app into a temporary folder and merge, since it refuses a non-empty one." },
+    { "path": "mobile/package.json", "kind": "generated", "milestone": "M5", "purpose": "'npx create-expo-app' (Expo Router template); then expo-share-intent, @tanstack/react-query, @microsoft/signalr, expo-secure-store, expo-notifications, jest-expo." },
+    { "path": "mobile/app.json", "kind": "generated", "milestone": "M5", "purpose": "Expo config: portrait only, the plannr:// scheme for deep links, Android intent filters (via expo-share-intent)." },
+    { "path": "mobile/tsconfig.json", "kind": "generated", "milestone": "M5", "purpose": "Created by create-expo-app." },
+    { "path": "mobile/eas.json", "kind": "generated", "milestone": "M5", "purpose": "'eas build:configure': the development build profile (share intent needs a dev build, not Expo Go)." },
+    { "path": "mobile/app/_layout.tsx", "kind": "generated", "milestone": "M5", "purpose": "Root layout from the template; wraps the app in the query client, session and SignalR providers." },
+    { "path": "mobile/app/login.tsx", "kind": "stub", "milestone": "M5", "purpose": "Log in / register.", "connects": ["mobile/src/auth/session.ts"] },
+    { "path": "mobile/app/(tabs)/wishlist.tsx", "kind": "stub", "milestone": "M5", "purpose": "Wishlist tab: every saved card, 'processing' cards updating live.", "connects": ["mobile/src/api/client.ts", "mobile/src/realtime/updates.ts"] },
+    { "path": "mobile/app/(tabs)/groups.tsx", "kind": "stub", "milestone": "M7", "purpose": "Groups tab." },
+    { "path": "mobile/app/(tabs)/plans.tsx", "kind": "stub", "milestone": "M7", "purpose": "Plans tab: invitations to answer, plans waiting on others." },
+    { "path": "mobile/app/card/[id]/index.tsx", "kind": "stub", "milestone": "M5", "purpose": "Card detail; uncertain fields highlighted.", "connects": ["mobile/src/components/ActivityCardView.tsx"] },
+    { "path": "mobile/app/card/[id]/edit.tsx", "kind": "stub", "milestone": "M5", "purpose": "Edit a card; saving a field clears its flag." },
+    { "path": "mobile/app/join/[code].tsx", "kind": "stub", "milestone": "M7", "purpose": "Deep link plannr://join/{code}: join a group from an invite." },
+    { "path": "mobile/src/api/client.ts", "kind": "stub", "milestone": "M5", "purpose": "Typed API client plus TanStack Query hooks.", "connects": ["mobile/src/api/schema.d.ts", "mobile/src/api/ApiError.ts", "mobile/src/auth/session.ts"] },
+    { "path": "mobile/src/api/schema.d.ts", "kind": "generated", "milestone": "M5", "purpose": "openapi-typescript output from the API's OpenAPI document, so C# and app types never drift." },
+    { "path": "mobile/src/api/ApiError.ts", "kind": "stub", "milestone": "M5", "purpose": "The app's one error type: reads ApiErrorResponse {message, reference, status}; shows the message and reference.", "connects": ["backend/src/Plannr.Api/Models/ApiErrorResponse.cs"] },
+    { "path": "mobile/src/diagnostics/errorReference.ts", "kind": "stub", "milestone": "M5", "purpose": "References minted on the phone (program code 04); TypeScript copy of the code table.", "connects": ["backend/src/Plannr.Core/Diagnostics/ErrorReference.cs"] },
+    { "path": "mobile/src/auth/session.ts", "kind": "stub", "milestone": "M5", "purpose": "JWT kept in expo-secure-store; refresh on 401." },
+    { "path": "mobile/src/share/useShareIntent.ts", "kind": "stub", "milestone": "M5", "purpose": "Shared links/images from TikTok etc. -> POST /captures; returns at once so the share sheet never hangs.", "question": "Does expo-share-intent support your Expo SDK version? (plan's proof-of-concept check)" },
+    { "path": "mobile/src/realtime/updates.ts", "kind": "stub", "milestone": "M5", "purpose": "@microsoft/signalr connection to /hubs/updates.", "connects": ["backend/src/Plannr.Api/Hubs/UpdatesHub.cs"] },
+    { "path": "mobile/src/notifications/push.ts", "kind": "stub", "milestone": "M7", "purpose": "expo-notifications: register the device's push token with PUT /me/push-token." },
+    { "path": "mobile/src/calendar/addToCalendar.ts", "kind": "stub", "milestone": "T2", "purpose": "Should: add a confirmed plan to the phone's calendar (expo-calendar)." },
+    { "path": "mobile/src/components/ActivityCardView.tsx", "kind": "stub", "milestone": "M5", "purpose": "One card: title, date, place, price, with flagged fields highlighted for correction." },
+
+    { "path": "infra", "kind": "folder", "milestone": "M3", "purpose": "Local containers and AWS notes." },
+    { "path": "infra/docker-compose.yml", "kind": "stub", "milestone": "M3", "purpose": "Local MySQL (M3), then the API and Worker containers (M4).", "connects": ["infra/docker/api.Dockerfile", "infra/docker/worker.Dockerfile"] },
+    { "path": "infra/docker/api.Dockerfile", "kind": "stub", "milestone": "M4", "purpose": "Plannr.Api image (ASP.NET runtime)." },
+    { "path": "infra/docker/worker.Dockerfile", "kind": "stub", "milestone": "M4", "purpose": "Plannr.Worker image, based on Microsoft's Playwright .NET image (Chromium included)." },
+    { "path": "infra/aws/README.md", "kind": "stub", "milestone": "T2", "purpose": "ECS Fargate (API small, Worker ~2 GB), RDS MySQL, ALB with HTTPS and WebSockets, secrets in SSM; the ci.yml deploy job fills in from here.", "connects": [".github/workflows/ci.yml"], "question": "Region eu-west-2 (London), to meet the spec's 'stored in the UK'?" },
+
+    { "path": "data-pool", "kind": "folder", "milestone": "M2", "purpose": "The labelled extraction data pool (P3): 100 links, 30 development + 70 held-out." },
+    { "path": "data-pool/README.md", "kind": "stub", "milestone": "M2", "purpose": "How the pool is laid out and labelled.", "question": "This repo is public: commit the labels and keep page snapshots out (gitignored), or keep the whole pool in a private repo?" }
   ]
 }

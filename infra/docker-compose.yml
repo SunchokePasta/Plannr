@@ -1,0 +1,3 @@
+# PLANNED (M3): Local MySQL (M3), then the API and Worker containers (M4).
+# Connects to: infra/docker/api.Dockerfile, infra/docker/worker.Dockerfile
+# Tracked in docs/structure.json; remove this header and the entry when it's built.

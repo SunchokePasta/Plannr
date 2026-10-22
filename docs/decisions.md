@@ -127,5 +127,18 @@ The live Eventbrite page (21 Oct) had an AggregateOffer from `"0.0"` to `"79.0"`
   - **Eval: 900 s (15 min), 10 rate-limit waits, 15 s/30 s/45 s retries** (`src/Plannr.Eval/appsettings.json`): data-pool runs have nobody waiting, like JobAnalyser's overnight runs.
 - **Found while doing it:** retry waits on a fake clock hang a test forever unless something moves the clock; the extractor tests now drive it through a helper that *fails* after a simulated limit instead of hanging. Also: Plannr.Api and Plannr.Eval both copy an `appsettings.json` into the test output, one overwriting the other; a test reading Eval's settings now reads its source file.
 
+## D30 · CI as staged jobs, each building for itself · stages agreed, rebuild review
+- **Agreed:** build → unit tests → integration tests → deploy, chained with `needs:` (GitLab-style stages); every push plus PRs into `main`; lock files with `--locked-mode`; SDK pinned by `backend/global.json`; read-only token; timeouts plus `--blame-hang-timeout 2m`.
+- **Review:** each job checks out and builds again rather than receiving the build job's output. The test project's output is ~130 MB (mostly Playwright's driver), so moving it between jobs would be slower than the ~30 s cached rebuild. The cost is that the "Build" job is a gate ("does it compile?") rather than the thing that's tested. When deploying arrives, the deployable thing (Docker images) should be built once and passed on: "build once, deploy many".
+- **First run** (`39766496866`, 22 Oct): all four jobs green on Linux, 34 s + 34 s + 1 m 10 s + 3 s.
+
+## D31 · `ubuntu-latest` is moving to Ubuntu 26 · question
+GitHub's notice on every job: *"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026."* Staying on `ubuntu-latest` means the runner's OS changes underneath us at some point (Playwright's `--with-deps` is the step most likely to notice). Pinning `runs-on: ubuntu-24.04` keeps it fixed until we choose to move.
+
+## D32 · The structure manifest and its test · review
+- `docs/structure.json` lists every planned file (stub on disk, generated later, or folder) with milestone, purpose, connections and open questions; `StructureManifestTests` keeps it and the disk in step (see `docs/structure.md`).
+- **Its reach:** a backend test reads the whole repository (mobile/, infra/, data-pool/). Simple and already in CI; the alternative is a separate script and CI step.
+- **Real files aren't listed**, only planned ones; git tracks the rest. So the list shrinks as things get built.
+
 ## D13 · Secrets never live in tracked files · agreed
 This repo is public. Keys and passwords go in `dotnet user-secrets` locally (stored in the user profile, outside the repo) and in SSM Parameter Store on AWS, never in a committed file. `.gitignore` also ignores every `appsettings.Development.json` and `appsettings.*.local.json` as a safety net. Test code uses obviously fake values that don't look like real key formats (so secret scanners don't false-alarm).
