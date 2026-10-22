@@ -133,8 +133,8 @@ The live Eventbrite page (21 Oct) had an AggregateOffer from `"0.0"` to `"79.0"`
 - **Review:** each job checks out and builds again rather than receiving the build job's output. The test project's output is ~130 MB (mostly Playwright's driver), so moving it between jobs would be slower than the ~30 s cached rebuild. The cost is that the "Build" job is a gate ("does it compile?") rather than the thing that's tested. When deploying arrives, the deployable thing (Docker images) should be built once and passed on: "build once, deploy many".
 - **First run** (`39766496866`, 22 Oct): all four jobs green on Linux, 34 s + 34 s + 1 m 10 s + 3 s.
 
-## D31 · `ubuntu-latest` is moving to Ubuntu 26 · question
-GitHub's notice on every job: *"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026."* Staying on `ubuntu-latest` means the runner's OS changes underneath us at some point (Playwright's `--with-deps` is the step most likely to notice). Pinning `runs-on: ubuntu-24.04` keeps it fixed until we choose to move.
+## D31 · CI runner pinned to `ubuntu-24.04` · agreed
+GitHub's notice on every job: *"The ubuntu-latest label will migrate to Ubuntu 26 beginning October 19, 2026."* Staying on `ubuntu-latest` means the runner's OS changes underneath us at some point (Playwright's `--with-deps` is the step most likely to notice). Pinning `runs-on: ubuntu-24.04` keeps it fixed until we choose to move. **Done in 9e**; moving to 26 later is a one-line change tried on a branch first.
 
 ## D32 · The structure manifest and its test · review
 - `docs/structure.json` lists every planned file (stub on disk, generated later, or folder) with milestone, purpose, connections and open questions; `StructureManifestTests` keeps it and the disk in step (see `docs/structure.md`).
@@ -168,6 +168,12 @@ Checked 22 Oct: Docker isn't installed, WSL isn't installed, and the firmware re
 
 ## D39 · Branches: decided in principle, not yet in use · agreed
 Feature branches with pull requests once branch protection is on (you set it in GitHub's settings). Until then, and as you chose on 22 Oct, work continues on `main`. Opening PRs from here also needs the GitHub CLI (`gh`), which isn't installed.
+
+## D40 · Every outside connection behind an interface · agreed
+Your rule, as in Applr: anything that reaches outside the program (web pages, Chromium, Groq, DNS, MySQL, the job queue, push, TikTok, YouTube, the clock) is used through an interface, registered in `Program.cs` through dependency injection, so tests swap in a fake through the same DI.
+- **Already true** for page fetching, Chromium, Groq and the clock (see `docs/architecture.md` §5).
+- **One gap in built code:** `PublicAddressGuard` and `PlaywrightPageFetcher` call `Dns` directly. Planned `IHostResolver` (M4, with the scraping split).
+- **Planned Refit interfaces** added to `structure.json`: `IExpoPushApi` (M7), `ITikTokOEmbedApi` (M6), `IYouTubeDataApi` (T2).
 
 ## D13 · Secrets never live in tracked files · agreed
 This repo is public. Keys and passwords go in `dotnet user-secrets` locally (stored in the user profile, outside the repo) and in SSM Parameter Store on AWS, never in a committed file. `.gitignore` also ignores every `appsettings.Development.json` and `appsettings.*.local.json` as a safety net. Test code uses obviously fake values that don't look like real key formats (so secret scanners don't false-alarm).

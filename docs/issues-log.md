@@ -50,6 +50,8 @@ site or service), *CI* (GitHub Actions), *tooling* (a command or script).
 | T4 | 9d | My first CI watcher never saw the run finish (it pulled the `status` field out wrong) and a second script mis-split job names | Stopped it; rewrote the watcher in Python |
 | T5 | 10b | I silenced git's line-ending warnings (`2>/dev/null`) on one commit, against the "don't hide warnings" rule | Called out; not repeated |
 | T6 | 10c | The 10c commit message says "106 entries"; there are 104 | Left as is: correcting it would mean rewriting public history |
+| T7 | docs | A background CI watcher crashed on a DNS lookup failure on the laptop (network blip), so it never reported | Checked the run directly (green); watchers should retry network errors |
+| T8 | docs | Couldn't check the architecture page's diagrams render: the built-in browser isn't signed in to Claude, and I don't sign in for you | Opened it in your side panel to check by eye |
 
 ## Findings to carry into the data pool (behaviour, not bugs)
 

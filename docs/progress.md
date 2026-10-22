@@ -3,7 +3,7 @@
 Running log of the build, kept current with every commit so work can
 resume from here if the chat's context runs out. Choices to review:
 [`decisions.md`](decisions.md). Every error that changed the code:
-[`issues-log.md`](issues-log.md). Everything planned, file by file:
+[`issues-log.md`](issues-log.md). How it all fits: [`architecture.md`](architecture.md). Everything planned, file by file:
 [`structure.json`](structure.json) (overview in [`structure.md`](structure.md)).
 
 **State on 22 Oct 2026:** Milestone 1 is complete and pushed to
@@ -41,7 +41,9 @@ by `structure.json`.
 | 9d | (push) | First push; run `39766496866` green in ~3 min |
 | 10a-10c | `4fc47be`, `5bb230c`, `b73ed6f` | `structure.json` + `StructureManifestTests`; placeholders for backend, data pool, mobile, infra; `structure.md` (CI run `39767569291` green) |
 | 5f | `01c65be` | Mangled-key check at startup; `models` 401 message; `qwen/qwen3.8-27b` verified as vision model |
-| docs | (this commit) | `issues-log.md` (backfilled); your 22 Oct answers recorded (D12, D30, D33-D39); M2 plan |
+| docs | `aa98c24` | `issues-log.md` (backfilled); your 22 Oct answers recorded (D12, D30, D33-D39); M2 plan (CI run `39770985370` green) |
+| 9e | (local) | CI runners pinned to `ubuntu-24.04` (D31) |
+| docs | (local) | `architecture.md`: overview + 12 detail diagrams (also published as a page); interface rule D40 with 4 planned interface stubs |
 
 ## What's left, in order
 
@@ -72,7 +74,7 @@ labelling.
 
 ## Needs you
 
-- **Branch protection:** GitHub → Settings → Branches (steps in chat, 22 Oct); then work moves to feature branches (D39).
+- **Branch protection:** the ruleset in `architecture.md` §7 (pull request + passing CI; your Merge click is the approval). Until it's on, I commit locally and ask before pushing to `main`.
 - **Data pool:** the 100 links, the scoring rules, where snapshots live (M2 below).
 - **Docker** (D38): local MySQL80 instead, or enable virtualisation and install Docker.
 - **Review** `decisions.md` (entries marked `review` or `question`) and the open questions in `structure.json`.
