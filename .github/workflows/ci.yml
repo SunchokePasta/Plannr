@@ -1,0 +1,157 @@
+# Plannr's pipeline: build -> unit tests -> integration tests -> deploy.
+# Each stage waits for the one before (needs:) and is skipped if it fails.
+# Every job runs on its own fresh Ubuntu machine, so each one checks out
+# and builds for itself; the NuGet cache keeps that to ~30 s. (Passing the
+# build output between jobs instead would mean moving ~130 MB each time,
+# most of it Playwright's driver.)
+
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+
+# The run's GITHUB_TOKEN can only read the repo: enough to check out, and
+# nothing a compromised third-party action could misuse.
+permissions:
+  contents: read
+
+# A newer push to the same branch cancels the run still going for the old one.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CONFIGURATION: Release
+  DOTNET_NOLOGO: "true"
+  DOTNET_CLI_TELEMETRY_OPTOUT: "true"
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend   # run: steps only; uses: steps start at the repo root
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v7
+
+      - name: Install the .NET SDK from global.json
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: backend/global.json
+          cache: true
+          cache-dependency-path: backend/**/packages.lock.json
+
+      - name: Restore packages (exactly the locked versions)
+        run: dotnet restore --locked-mode
+
+      - name: Build (warnings are errors)
+        run: dotnet build --no-restore --configuration "$CONFIGURATION"
+
+  unit-tests:
+    name: Unit tests
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v7
+
+      - name: Install the .NET SDK from global.json
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: backend/global.json
+          cache: true
+          cache-dependency-path: backend/**/packages.lock.json
+
+      - name: Restore packages (exactly the locked versions)
+        run: dotnet restore --locked-mode
+
+      - name: Build
+        run: dotnet build --no-restore --configuration "$CONFIGURATION"
+
+      # Any single test running over 2 minutes is killed and named in the
+      # log, so a hang fails fast instead of using up the job's timeout.
+      - name: Run unit tests
+        run: >-
+          dotnet test --no-build --configuration "$CONFIGURATION"
+          --filter "Category!=Integration"
+          --logger trx --results-directory TestResults
+          --blame-hang-timeout 2m --blame-hang-dump-type none
+
+      - name: Keep the test results if anything failed
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: unit-test-results
+          path: backend/TestResults
+          retention-days: 14
+
+  integration-tests:
+    name: Integration tests (real Chromium)
+    needs: unit-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v7
+
+      - name: Install the .NET SDK from global.json
+        uses: actions/setup-dotnet@v6
+        with:
+          global-json-file: backend/global.json
+          cache: true
+          cache-dependency-path: backend/**/packages.lock.json
+
+      - name: Restore packages (exactly the locked versions)
+        run: dotnet restore --locked-mode
+
+      - name: Build
+        run: dotnet build --no-restore --configuration "$CONFIGURATION"
+
+      # The same script as on Windows; --with-deps also installs the Linux
+      # system libraries Chromium needs.
+      - name: Install Chromium for Playwright
+        run: pwsh "tests/Plannr.Tests/bin/$CONFIGURATION/net10.0/playwright.ps1" install --with-deps chromium
+
+      - name: Run integration tests
+        run: >-
+          dotnet test --no-build --configuration "$CONFIGURATION"
+          --filter "Category=Integration"
+          --logger trx --results-directory TestResults
+          --blame-hang-timeout 2m --blame-hang-dump-type none
+
+      - name: Keep the test results if anything failed
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: integration-test-results
+          path: backend/TestResults
+          retention-days: 14
+
+  # Only after everything passes, and only for pushes to main. Nothing is
+  # deployed yet: this keeps the stage in the pipeline so the AWS steps
+  # (Docker images -> ECR -> ECS Fargate, spec Term 2) have a place to go.
+  deploy:
+    name: Deploy (placeholder)
+    needs: integration-tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Nothing to deploy yet
+        run: |
+          echo "Plannr has nothing to deploy yet."
+          echo "Planned: build Plannr.Api and Plannr.Worker Docker images, push them to AWS ECR,"
+          echo "and update the ECS Fargate services (see infra/ and docs/progress.md)."
