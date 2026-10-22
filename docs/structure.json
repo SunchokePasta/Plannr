@@ -598,6 +598,169 @@
       "question": "A separate project for database tests, or keep one test project with a Category? Docker is available on GitHub's runners; is it installed on your laptop?"
     },
     {
+      "path": "mobile",
+      "kind": "folder",
+      "milestone": "M5",
+      "purpose": "The Expo (React Native, TypeScript) app, Android first. Generator-owned files are 'generated' entries: run create-expo-app into a temporary folder and merge, since it refuses a non-empty one."
+    },
+    {
+      "path": "mobile/package.json",
+      "kind": "generated",
+      "milestone": "M5",
+      "purpose": "'npx create-expo-app' (Expo Router template); then expo-share-intent, @tanstack/react-query, @microsoft/signalr, expo-secure-store, expo-notifications, jest-expo."
+    },
+    {
+      "path": "mobile/app.json",
+      "kind": "generated",
+      "milestone": "M5",
+      "purpose": "Expo config: portrait only, the plannr:// scheme for deep links, Android intent filters (via expo-share-intent)."
+    },
+    {
+      "path": "mobile/tsconfig.json",
+      "kind": "generated",
+      "milestone": "M5",
+      "purpose": "Created by create-expo-app."
+    },
+    {
+      "path": "mobile/eas.json",
+      "kind": "generated",
+      "milestone": "M5",
+      "purpose": "'eas build:configure': the development build profile (share intent needs a dev build, not Expo Go)."
+    },
+    {
+      "path": "mobile/app/_layout.tsx",
+      "kind": "generated",
+      "milestone": "M5",
+      "purpose": "Root layout from the template; wraps the app in the query client, session and SignalR providers."
+    },
+    {
+      "path": "mobile/app/login.tsx",
+      "kind": "stub",
+      "milestone": "M5",
+      "purpose": "Log in / register.",
+      "connects": [
+        "mobile/src/auth/session.ts"
+      ]
+    },
+    {
+      "path": "mobile/app/(tabs)/wishlist.tsx",
+      "kind": "stub",
+      "milestone": "M5",
+      "purpose": "Wishlist tab: every saved card, 'processing' cards updating live.",
+      "connects": [
+        "mobile/src/api/client.ts",
+        "mobile/src/realtime/updates.ts"
+      ]
+    },
+    {
+      "path": "mobile/app/(tabs)/groups.tsx",
+      "kind": "stub",
+      "milestone": "M7",
+      "purpose": "Groups tab."
+    },
+    {
+      "path": "mobile/app/(tabs)/plans.tsx",
+      "kind": "stub",
+      "milestone": "M7",
+      "purpose": "Plans tab: invitations to answer, plans waiting on others."
+    },
+    {
+      "path": "mobile/app/card/[id]/index.tsx",
+      "kind": "stub",
+      "milestone": "M5",
+      "purpose": "Card detail; uncertain fields highlighted.",
+      "connects": [
+        "mobile/src/components/ActivityCardView.tsx"
+      ]
+    },
+    {
+      "path": "mobile/app/card/[id]/edit.tsx",
+      "kind": "stub",
+      "milestone": "M5",
+      "purpose": "Edit a card; saving a field clears its flag."
+    },
+    {
+      "path": "mobile/app/join/[code].tsx",
+      "kind": "stub",
+      "milestone": "M7",
+      "purpose": "Deep link plannr://join/{code}: join a group from an invite."
+    },
+    {
+      "path": "mobile/src/api/client.ts",
+      "kind": "stub",
+      "milestone": "M5",
+      "purpose": "Typed API client plus TanStack Query hooks.",
+      "connects": [
+        "mobile/src/api/schema.d.ts",
+        "mobile/src/api/ApiError.ts",
+        "mobile/src/auth/session.ts"
+      ]
+    },
+    {
+      "path": "mobile/src/api/schema.d.ts",
+      "kind": "generated",
+      "milestone": "M5",
+      "purpose": "openapi-typescript output from the API's OpenAPI document, so C# and app types never drift."
+    },
+    {
+      "path": "mobile/src/api/ApiError.ts",
+      "kind": "stub",
+      "milestone": "M5",
+      "purpose": "The app's one error type: reads ApiErrorResponse {message, reference, status}; shows the message and reference.",
+      "connects": [
+        "backend/src/Plannr.Api/Models/ApiErrorResponse.cs"
+      ]
+    },
+    {
+      "path": "mobile/src/diagnostics/errorReference.ts",
+      "kind": "stub",
+      "milestone": "M5",
+      "purpose": "References minted on the phone (program code 04); TypeScript copy of the code table.",
+      "connects": [
+        "backend/src/Plannr.Core/Diagnostics/ErrorReference.cs"
+      ]
+    },
+    {
+      "path": "mobile/src/auth/session.ts",
+      "kind": "stub",
+      "milestone": "M5",
+      "purpose": "JWT kept in expo-secure-store; refresh on 401."
+    },
+    {
+      "path": "mobile/src/share/useShareIntent.ts",
+      "kind": "stub",
+      "milestone": "M5",
+      "purpose": "Shared links/images from TikTok etc. -> POST /captures; returns at once so the share sheet never hangs.",
+      "question": "Does expo-share-intent support your Expo SDK version? (plan's proof-of-concept check)"
+    },
+    {
+      "path": "mobile/src/realtime/updates.ts",
+      "kind": "stub",
+      "milestone": "M5",
+      "purpose": "@microsoft/signalr connection to /hubs/updates.",
+      "connects": [
+        "backend/src/Plannr.Api/Hubs/UpdatesHub.cs"
+      ]
+    },
+    {
+      "path": "mobile/src/notifications/push.ts",
+      "kind": "stub",
+      "milestone": "M7",
+      "purpose": "expo-notifications: register the device's push token with PUT /me/push-token."
+    },
+    {
+      "path": "mobile/src/calendar/addToCalendar.ts",
+      "kind": "stub",
+      "milestone": "T2",
+      "purpose": "Should: add a confirmed plan to the phone's calendar (expo-calendar)."
+    },
+    {
+      "path": "mobile/src/components/ActivityCardView.tsx",
+      "kind": "stub",
+      "milestone": "M5",
+      "purpose": "One card: title, date, place, price, with flagged fields highlighted for correction."
+    },
+    {
       "path": "data-pool",
       "kind": "folder",
       "milestone": "M2",
