@@ -31,7 +31,7 @@ the placeholder job at the end of `ci.yml`.
 
 ## The tree
 
-`●` built · `○` planned (stubs or generated) · milestone in brackets.
+`●` built · `◐` skeleton: shape built, logic marked TODO (see `guides/hand-offs.md`) · `○` planned (stubs or generated) · milestone in brackets.
 
 ```
 .github/workflows/ci.yml          ● build → unit tests → integration tests → deploy (placeholder)
@@ -39,26 +39,28 @@ the placeholder job at the end of `ci.yml`.
 backend/                          .NET 10 solution (Plannr.slnx, global.json, Directory.Build.props)
   src/
     Plannr.Services/              shared by every program (Applr.Services' folders); no database, no browser
-      APIs/                       ● IGroqApi (Refit)   ○ IExpoPushApi [M7]: the only folder that makes network calls
-      DTOs/                       ● CardDraft, RetrievedContent, LlmCardFields, FieldFlag, Groq's request/response
+      APIs/                       ● IGroqApi, IPlannrInternalApi, IWorkerWakeApi (Refit)   ○ IExpoPushApi [M7]: the only folder that makes network calls
+      DTOs/                       ● CardDraft, RetrievedContent, LlmCardFields, FieldFlag, Groq's request/response, the hand-off messages, PlannrJson
       Interfaces/                 ● retriever, LLM, pipeline, link classifier
       Services/                   ● ExtractionPipeline, GroqLlmExtractor, LinkClassifier   ○ ExpoPushClient [M7]
       Extraction/ Llm/            ● JSON-LD mapper, normaliser, date/price parsers · prompt, answer parser, rate-limit rules
       Diagnostics/ Options/       ● ErrorReference, Serilog setup, options classes, GetValidated
       Exceptions/                 ● CaptureException family   ○ EntityNotFound, NotAllowed [M3]
-      DependencyInjection/        ● AddPlannrLlm, AddPlannrExtraction
+      DependencyInjection/        ● AddPlannrLlm, AddPlannrExtraction, the hand-off clients
+      HandOffs/                   ◐ WakeSignal, SharedSecret (skeleton: TODO H1, H2)
       Planning/                   ○ DateSelector [T2]
     Plannr.Scraping/              page fetching; the Worker and Eval only, never the API
       Retrieval/                  ● HTTP + Playwright fetching, SSRF guard, HTML parser
                                   ○ rate limiter, cache [M4] · TikTok/ [M6] · BioLinkResolver, YouTube/ [T2]
       Options/ DependencyInjection/ ● RetrievalOptions · AddPlannrRetrieval, AddPlannrCapture (the whole pipeline)
     Plannr.Data/                  MySQL; the API only (the Worker goes through the API)
-      Entities/                   ○ ActivityCard, CardFieldFlag, PlannrUser [M3] · Capture [M4] · Group, Plan, responses, DeviceToken [M7] · date options, Reminder [T2]
-      Configurations/ Repositories/ ○ PlannrDbContext, EF mappings, one repository per table [M3-M7] · Migrations/ (generated)
+      Entities/                   ● Capture, CaptureStatus   ○ ActivityCard, CardFieldFlag, PlannrUser [M3] · Group, Plan, responses, DeviceToken [M7] · date options, Reminder [T2]
+      Repositories/               ● ICaptureRepository, ICardRepository   ○ the EF Core repositories, CaptureRepository's claim (TODO H7.1) [M3-M7]
+      Configurations/             ○ PlannrDbContext, EF mappings [M3-M4] · Migrations/ (generated)
       DependencyInjection/        ○ AddPlannrData [M3]
-    Plannr.Api/                   ● exception middleware, /health   ○ Controllers/, Contracts/ [M3-M7] · Hubs/, Notifications/ [M4]
-                                  ○ Services/ (CaptureService [M4], JwtTokenService [M3], PlanService [M7]) · Options/JwtOptions [M3]
-    Plannr.Worker/                ○ second program: capture jobs [M4], reminders [T2] (.csproj, Program.cs generated)
+    Plannr.Api/                   ● exception middleware, /health, HandOffOptions   ◐ HandOffs/, HandOffsController, CaptureService (skeleton: TODO H2-H6)
+                                  ○ Controllers/, Contracts/ [M3-M7] · Hubs/, SignalR notifier [M4] · JwtTokenService [M3], PlanService [M7]
+    Plannr.Worker/                ◐ second program: Program.cs, WorkerOptions, HandOffs/ (skeleton: TODO H4, H6)   ○ reminders [T2]
     Plannr.Eval/                  ● extract, models   ○ snapshot, score, DataPool/ [M2]
   tests/
     Plannr.Tests/                 ● unit + browser integration tests, fixture pages, structure check, architecture tests

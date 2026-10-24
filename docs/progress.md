@@ -49,7 +49,9 @@ by `structure.json`.
 | 11c | `53a74af` | `Plannr.Scraping`: page fetching, Chromium, SSRF guard (D12, done early) |
 | 11d | `2561476` | Core + Infrastructure merged into `Plannr.Services`, with Applr's folders (D41) |
 | 11e | `9dfe350` | `ArchitectureTests`: network calls only in `APIs/`, approved packages, agreed project references (D42) |
-| 11f | (this) | Docs for the new layout; D37 decided (nudge and sweep, API owns the database) |
+| 11f | `aefad92` | Docs for the new layout; D37 decided (nudge and sweep, API owns the database) |
+| 12a | `856aed5` | The hand-off skeleton: contracts and Refit clients, `Plannr.Worker`, `TODO(H1.1)`-`(H7.2)`, 43 tests waiting on them (checked against a working version first); fixes #33, #34 |
+| 12b | (this) | `docs/guides/hand-offs.md` linked in; `architecture.md` §1-§7 redrawn for the chosen design (also republished); D43; issues #33-#36 |
 
 ## What's left, in order
 

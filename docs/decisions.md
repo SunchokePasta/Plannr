@@ -161,6 +161,8 @@ Groq's model list (22 Oct) has no model labelled for images. Qwen 3.8 was tested
 - Every request between the programs takes milliseconds; the only slow part (the website and Groq) runs inside the worker. The internal endpoints are guarded by a shared secret header, compared in constant time.
 - **Why not (b) alone:** up to 2 s of delay and a query every 2 s for ever; the nudge makes the common case instant and the sweep keeps (b)'s "nothing is lost" property. **Why not (a) alone:** a lost call loses the announcement; the sweep fixes that.
 - **Cost:** two private endpoints and a secret to configure in each program; the worker listens on one private port.
+- **`ICaptureQueue` dropped:** the claim is a method of `ICaptureRepository`, and the worker never sees the database, so moving the queue to Amazon SQS one day would change only the API.
+- **Built as a skeleton first (12a):** every class and test exists; the logic is `TODO(H1.1)`-`(H7.2)` for you to write, in the order `docs/guides/hand-offs.md` gives.
 - Diagrams: `docs/architecture.md` §3-§4. How to build it, step by step: `docs/guides/hand-offs.md`.
 
 *The original question, as asked:* the phone's live connection (SignalR) is to the **API**; the card is made by the **Worker**, a separate program. Options:
@@ -201,6 +203,12 @@ Your rule, as in Applr: anything that reaches outside the program (web pages, Ch
 - **A self-check** runs rule 1 over the test project, where `StubHttpHandler` must be caught, so the rule can't silently stop matching after a library upgrade. Checked by hand as well: a throwaway class calling `new HttpClient()` in `Extraction/` failed the test by name.
 - **Library:** `NetArchTest.eNhancedEdition` 1.4.5, the maintained fork of NetArchTest (whose last release was 2021), with the same simple API. It reads the compiled DLL, not the source, so it sees `new`, fields, parameters and lambdas. ArchUnitNET does the same with a heavier API.
 - **Limits:** it's a tripwire for honest mistakes, not a defence against tricks (reflection, loading code at runtime), and it trusts approved packages.
+
+## D43 · Enums travel as camelCase names · review
+- **What:** the API reads and writes enums as names (`"waiting"`, `"webPage"`), not numbers (`PlannrJson`, applied in the API's `Program.cs`).
+- **Why:** the worker's Refit client already writes them that way, and the API refused them (issue #34). Names also read clearly in the phone app's code and in logs, and survive reordering an enum, where a number would silently change meaning.
+- **Cost:** a few bytes per enum; renaming an enum member is a breaking change for the phone app (as renaming a property already is).
+- **Undo:** drop the converter, and configure Refit to send numbers instead.
 
 ## D13 · Secrets never live in tracked files · agreed
 This repo is public. Keys and passwords go in `dotnet user-secrets` locally (stored in the user profile, outside the repo) and in SSM Parameter Store on AWS, never in a committed file. `.gitignore` also ignores every `appsettings.Development.json` and `appsettings.*.local.json` as a safety net. Test code uses obviously fake values that don't look like real key formats (so secret scanners don't false-alarm).
