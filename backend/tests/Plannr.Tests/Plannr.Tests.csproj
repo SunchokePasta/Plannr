@@ -26,6 +26,7 @@
     <ProjectReference Include="..\..\src\Plannr.Eval\Plannr.Eval.csproj" />
     <ProjectReference Include="..\..\src\Plannr.Scraping\Plannr.Scraping.csproj" />
     <ProjectReference Include="..\..\src\Plannr.Services\Plannr.Services.csproj" />
+    <ProjectReference Include="..\..\src\Plannr.Worker\Plannr.Worker.csproj" />
   </ItemGroup>
 
   <ItemGroup>

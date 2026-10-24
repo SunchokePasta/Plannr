@@ -663,6 +663,14 @@
           "Serilog.Sinks.Console": "[6.1.1, )",
           "Serilog.Sinks.File": "[7.0.0, )"
         }
+      },
+      "plannr.worker": {
+        "type": "Project",
+        "dependencies": {
+          "Plannr.Scraping": "[1.0.0, )",
+          "Plannr.Services": "[1.0.0, )",
+          "Serilog.AspNetCore": "[10.0.0, )"
+        }
       }
     }
   }

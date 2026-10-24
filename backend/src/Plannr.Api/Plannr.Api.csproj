@@ -6,6 +6,15 @@
     Plannr.Worker through the Captures table rather than done here.
   -->
 
+  <PropertyGroup>
+    <!--
+      Where `dotnet user-secrets` keeps this project's secrets
+      (HandOffs:Secret; later the database password and JWT key), outside
+      the repo. Not a secret itself.
+    -->
+    <UserSecretsId>plannr-api-f0ce8bab-6cd4-47c0-b505-1f2e8c0b1faa</UserSecretsId>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
   </ItemGroup>

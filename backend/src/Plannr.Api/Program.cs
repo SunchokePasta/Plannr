@@ -1,5 +1,6 @@
 using Plannr.Api.Middleware;
 using Plannr.Services.Diagnostics;
+using Plannr.Services.DTOs;
 using Serilog;
 
 // First, before anything can fail: every reference this process mints
@@ -14,7 +15,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Host.UseSerilog((_, configuration) => configuration
     .UsePlannrDefaults(Path.Combine(builder.Environment.ContentRootPath, "logs")));
 
-builder.Services.AddControllers();
+// Enums as names, the same as the worker's Refit client writes them (PlannrJson).
+builder.Services.AddControllers()
+    .AddJsonOptions(json => PlannrJson.Configure(json.JsonSerializerOptions));
+
+// TODO(H6.3): turn the hand-offs on, once M3's AddPlannrData and M4's
+// SignalR notifier are registered above it (the wiring needs both):
+//   builder.Services.AddPlannrApiHandOffs(builder.Configuration);
 
 // What the AWS load balancer polls. When MySQL arrives (Milestone 3),
 // AddDbContextCheck here makes /health report the database too.

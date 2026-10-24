@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    The second program: runs captures in the background (fetching pages,
+    asking Groq) so the API can always answer at once. Separate so
+    Chromium's memory use and crashes can't take the API down. It never
+    touches the database (D41): it claims jobs from the API and hands
+    results back (D37), and listens on one private endpoint for the API's
+    wake call, which is why it's a (very small) web app.
+  -->
+
+  <PropertyGroup>
+    <!--
+      Where `dotnet user-secrets` keeps this project's secrets (the Groq key,
+      Worker:Secret), outside the repo. Not a secret itself.
+    -->
+    <UserSecretsId>plannr-worker-eb290255-6c6b-45f6-95a4-47fbec03a256</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Plannr.Scraping\Plannr.Scraping.csproj" />
+    <ProjectReference Include="..\Plannr.Services\Plannr.Services.csproj" />
+  </ItemGroup>
+
+</Project>
