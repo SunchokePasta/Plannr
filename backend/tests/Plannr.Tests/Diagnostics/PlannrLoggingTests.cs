@@ -1,4 +1,4 @@
-using Plannr.Infrastructure.Diagnostics;
+using Plannr.Services.Diagnostics;
 using Serilog;
 
 namespace Plannr.Tests.Diagnostics;

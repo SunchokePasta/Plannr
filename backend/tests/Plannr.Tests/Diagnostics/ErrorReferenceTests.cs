@@ -1,5 +1,5 @@
 using System.Text.RegularExpressions;
-using Plannr.Core.Diagnostics;
+using Plannr.Services.Diagnostics;
 
 namespace Plannr.Tests.Diagnostics;
 

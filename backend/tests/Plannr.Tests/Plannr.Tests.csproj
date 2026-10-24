@@ -20,11 +20,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Plannr.Core\Plannr.Core.csproj" />
-    <ProjectReference Include="..\..\src\Plannr.Infrastructure\Plannr.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\src\Plannr.Scraping\Plannr.Scraping.csproj" />
     <ProjectReference Include="..\..\src\Plannr.Api\Plannr.Api.csproj" />
+    <ProjectReference Include="..\..\src\Plannr.Data\Plannr.Data.csproj" />
     <ProjectReference Include="..\..\src\Plannr.Eval\Plannr.Eval.csproj" />
+    <ProjectReference Include="..\..\src\Plannr.Scraping\Plannr.Scraping.csproj" />
+    <ProjectReference Include="..\..\src\Plannr.Services\Plannr.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>

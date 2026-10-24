@@ -1,4 +1,4 @@
-using Plannr.Core.Interfaces;
+using Plannr.Services.Interfaces;
 
 namespace Plannr.Eval;
 

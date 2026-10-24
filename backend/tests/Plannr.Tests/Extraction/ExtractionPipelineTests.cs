@@ -1,11 +1,13 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
-using Plannr.Core.Extraction;
-using Plannr.Core.Diagnostics;
-using Plannr.Core.Exceptions;
-using Plannr.Core.Interfaces;
-using Plannr.Core.Options;
+using Plannr.Services.Diagnostics;
+using Plannr.Services.DTOs;
+using Plannr.Services.Exceptions;
+using Plannr.Services.Extraction;
+using Plannr.Services.Interfaces;
+using Plannr.Services.Options;
+using Plannr.Services.Services;
 using Plannr.Tests.Diagnostics;
 
 namespace Plannr.Tests.Extraction;

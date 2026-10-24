@@ -15,9 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Plannr.Core\Plannr.Core.csproj" />
     <ProjectReference Include="..\Plannr.Data\Plannr.Data.csproj" />
-    <ProjectReference Include="..\Plannr.Infrastructure\Plannr.Infrastructure.csproj" />
+    <ProjectReference Include="..\Plannr.Services\Plannr.Services.csproj" />
   </ItemGroup>
 
 </Project>

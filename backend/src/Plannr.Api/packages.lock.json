@@ -17,29 +17,10 @@
           "Serilog.Sinks.File": "7.0.0"
         }
       },
-      "AngleSharp": {
-        "type": "Transitive",
-        "resolved": "1.8.5",
-        "contentHash": "BUgFIpmkjwMPi6QneHUHaprjUOGSXoWEF/xi/2seHCpnI8XMHACNiC09rn9qL8jbxrP8jWyJ3DnOjsGvXWNGmw=="
-      },
-      "Microsoft.Bcl.AsyncInterfaces": {
-        "type": "Transitive",
-        "resolved": "6.0.0",
-        "contentHash": "UcSjPsst+DfAdJGVDsu346FX0ci0ah+lw3WRtn18NUwEqRt70HaOQ7lI72vy3+1LxtqI3T5GWwV39rQSrCzAeg=="
-      },
       "Microsoft.Extensions.DependencyModel": {
         "type": "Transitive",
         "resolved": "10.0.0",
         "contentHash": "RFYJR7APio/BiqdQunRq6DB+nDB6nc2qhHr77mlvZ0q0BT8PubMXN7XicmfzCbrDE/dzhBnUKBRXLTcqUiZDGg=="
-      },
-      "Microsoft.Playwright": {
-        "type": "Transitive",
-        "resolved": "1.64.0",
-        "contentHash": "Bf+FpWu5tYpNCSYtSJLWLMYcDoN/qVjCoX8BNLNyLtqzlS1/zQFklMB2g0NEkebrVUpvrdV/D/zQMUAG4CZFGg==",
-        "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
-          "System.ComponentModel.Annotations": "5.0.0"
-        }
       },
       "ReactiveUI.Disposables": {
         "type": "Transitive",
@@ -143,26 +124,15 @@
           "Serilog": "4.2.0"
         }
       },
-      "System.ComponentModel.Annotations": {
-        "type": "Transitive",
-        "resolved": "5.0.0",
-        "contentHash": "dMkqfy2el8A8/I76n2Hi1oBFEbG1SfxD2l5nhwXV3XjlnOmwxJlQbYpJH4W51odnU9sARCSAgv7S3CyAFMkpYg=="
-      },
-      "plannr.core": {
-        "type": "Project"
-      },
       "plannr.data": {
         "type": "Project",
         "dependencies": {
-          "Plannr.Core": "[1.0.0, )"
+          "Plannr.Services": "[1.0.0, )"
         }
       },
-      "plannr.infrastructure": {
+      "plannr.services": {
         "type": "Project",
         "dependencies": {
-          "AngleSharp": "[1.8.5, )",
-          "Microsoft.Playwright": "[1.64.0, )",
-          "Plannr.Core": "[1.0.0, )",
           "Refit.HttpClientFactory": "[16.4.0, )",
           "Serilog": "[4.4.0, )",
           "Serilog.Sinks.Console": "[6.1.1, )",

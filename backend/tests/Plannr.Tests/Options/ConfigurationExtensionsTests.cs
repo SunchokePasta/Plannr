@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
-using Plannr.Core.Options;
-using Plannr.Infrastructure.Options;
+using Plannr.Services.Options;
 
 namespace Plannr.Tests.Options;
 

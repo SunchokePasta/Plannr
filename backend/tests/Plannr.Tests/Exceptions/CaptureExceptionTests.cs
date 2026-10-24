@@ -1,4 +1,4 @@
-using Plannr.Core.Exceptions;
+using Plannr.Services.Exceptions;
 
 namespace Plannr.Tests.Exceptions;
 

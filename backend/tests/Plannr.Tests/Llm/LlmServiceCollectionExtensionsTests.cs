@@ -1,8 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
-using Plannr.Core.Interfaces;
-using Plannr.Infrastructure.DependencyInjection;
-using Plannr.Infrastructure.Llm;
-using Plannr.Infrastructure.Options;
+using Plannr.Services.APIs;
+using Plannr.Services.DependencyInjection;
+using Plannr.Services.DTOs;
+using Plannr.Services.Interfaces;
+using Plannr.Services.Options;
+using Plannr.Services.Services;
 
 namespace Plannr.Tests.Llm;
 
@@ -45,10 +47,10 @@ public sealed class LlmServiceCollectionExtensionsTests
                 client => client.ConfigurePrimaryHttpMessageHandler(() => stub));
         using var provider = services.BuildServiceProvider();
 
-        var fields = await provider.GetRequiredService<ILlmExtractor>().ExtractAsync(new Plannr.Core.Extraction.RetrievedContent
+        var fields = await provider.GetRequiredService<ILlmExtractor>().ExtractAsync(new RetrievedContent
         {
             SourceUrl = new Uri("https://venue.example.com/e/1"),
-            SourceType = Plannr.Core.Extraction.SourceType.WebPage,
+            SourceType = SourceType.WebPage,
             BodyText = "Market, Sat"
         });
 

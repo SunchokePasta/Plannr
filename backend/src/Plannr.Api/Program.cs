@@ -1,6 +1,5 @@
 using Plannr.Api.Middleware;
-using Plannr.Core.Diagnostics;
-using Plannr.Infrastructure.Diagnostics;
+using Plannr.Services.Diagnostics;
 using Serilog;
 
 // First, before anything can fail: every reference this process mints

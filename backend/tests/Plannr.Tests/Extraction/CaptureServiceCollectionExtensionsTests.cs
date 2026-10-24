@@ -1,9 +1,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Plannr.Core.Extraction;
-using Plannr.Core.Interfaces;
-using Plannr.Infrastructure.Options;
 using Plannr.Scraping.DependencyInjection;
+using Plannr.Services.Interfaces;
+using Plannr.Services.Options;
+using Plannr.Services.Services;
 
 namespace Plannr.Tests.Extraction;
 
@@ -44,11 +44,10 @@ public sealed class CaptureServiceCollectionExtensionsTests
             .AddInMemoryCollection([new KeyValuePair<string, string?>("Groq:ApiKey", "k")])
             .Build();
 
-        var groq = Plannr.Infrastructure.Options.ConfigurationExtensions
-            .GetValidated<Plannr.Infrastructure.Options.GroqOptions>(config, "Groq");
+        var groq = config.GetValidated<GroqOptions>("Groq");
 
         Assert.Equal(900, groq.MaxRateLimitWaitSeconds);
-        Assert.True(groq.MaxRateLimitWaitSeconds > new Plannr.Infrastructure.Options.GroqOptions().MaxRateLimitWaitSeconds);
+        Assert.True(groq.MaxRateLimitWaitSeconds > new GroqOptions().MaxRateLimitWaitSeconds);
     }
 
     [Fact]

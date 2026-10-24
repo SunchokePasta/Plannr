@@ -1,6 +1,7 @@
 using Plannr.Eval;
-using Plannr.Infrastructure.Llm;
-using Plannr.Infrastructure.Options;
+using Plannr.Services.APIs;
+using Plannr.Services.DTOs;
+using Plannr.Services.Options;
 
 namespace Plannr.Tests.Eval;
 

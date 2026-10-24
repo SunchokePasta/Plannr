@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
-using Plannr.Core.Exceptions;
-using Plannr.Core.Extraction;
 using Plannr.Scraping.Options;
 using Plannr.Scraping.Retrieval;
+using Plannr.Services.DTOs;
+using Plannr.Services.Exceptions;
 
 namespace Plannr.Tests.Retrieval;
 

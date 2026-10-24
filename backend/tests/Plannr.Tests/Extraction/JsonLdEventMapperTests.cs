@@ -1,4 +1,4 @@
-using Plannr.Core.Extraction;
+using Plannr.Services.Extraction;
 
 namespace Plannr.Tests.Extraction;
 

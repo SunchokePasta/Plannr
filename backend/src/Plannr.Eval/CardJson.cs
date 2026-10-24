@@ -1,7 +1,7 @@
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Plannr.Core.Extraction;
+using Plannr.Services.DTOs;
 
 namespace Plannr.Eval;
 

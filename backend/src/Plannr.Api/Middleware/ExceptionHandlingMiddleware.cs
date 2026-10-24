@@ -1,8 +1,8 @@
 using System.Data.Common;
 using System.Text.Json;
 using Plannr.Api.Models;
-using Plannr.Core.Diagnostics;
-using Plannr.Core.Exceptions;
+using Plannr.Services.Diagnostics;
+using Plannr.Services.Exceptions;
 
 namespace Plannr.Api.Middleware;
 

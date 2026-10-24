@@ -2,10 +2,11 @@ using System.Net;
 using System.Text;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
-using Plannr.Core.Extraction;
-using Plannr.Core.Exceptions;
-using Plannr.Infrastructure.Llm;
-using Plannr.Infrastructure.Options;
+using Plannr.Services.APIs;
+using Plannr.Services.DTOs;
+using Plannr.Services.Exceptions;
+using Plannr.Services.Options;
+using Plannr.Services.Services;
 using Refit;
 
 namespace Plannr.Tests.Llm;

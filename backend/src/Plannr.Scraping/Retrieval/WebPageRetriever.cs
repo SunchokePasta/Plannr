@@ -1,9 +1,9 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Plannr.Core.Diagnostics;
-using Plannr.Core.Extraction;
-using Plannr.Core.Interfaces;
 using Plannr.Scraping.Options;
+using Plannr.Services.Diagnostics;
+using Plannr.Services.DTOs;
+using Plannr.Services.Interfaces;
 
 namespace Plannr.Scraping.Retrieval;
 

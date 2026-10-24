@@ -1,4 +1,4 @@
-using Plannr.Core.Options;
+using Plannr.Services.Options;
 
 namespace Plannr.Scraping.Options;
 

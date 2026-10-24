@@ -1,9 +1,9 @@
 using System.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Playwright;
-using Plannr.Core.Exceptions;
-using Plannr.Core.Extraction;
 using Plannr.Scraping.Options;
+using Plannr.Services.DTOs;
+using Plannr.Services.Exceptions;
 
 namespace Plannr.Scraping.Retrieval;
 

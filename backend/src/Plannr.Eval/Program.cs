@@ -1,14 +1,13 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Plannr.Core.Diagnostics;
-using Plannr.Core.Exceptions;
-using Plannr.Core.Interfaces;
 using Plannr.Eval;
-using Plannr.Infrastructure.Diagnostics;
-using Plannr.Infrastructure.Llm;
-using Plannr.Infrastructure.Options;
 using Plannr.Scraping.DependencyInjection;
+using Plannr.Services.APIs;
+using Plannr.Services.Diagnostics;
+using Plannr.Services.Exceptions;
+using Plannr.Services.Interfaces;
+using Plannr.Services.Options;
 using Serilog;
 
 // First, before anything can fail: every reference this process mints

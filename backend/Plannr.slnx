@@ -1,11 +1,10 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/Plannr.Api/Plannr.Api.csproj" />
-    <Project Path="src/Plannr.Core/Plannr.Core.csproj" />
     <Project Path="src/Plannr.Data/Plannr.Data.csproj" />
     <Project Path="src/Plannr.Eval/Plannr.Eval.csproj" />
-    <Project Path="src/Plannr.Infrastructure/Plannr.Infrastructure.csproj" />
     <Project Path="src/Plannr.Scraping/Plannr.Scraping.csproj" />
+    <Project Path="src/Plannr.Services/Plannr.Services.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Plannr.Tests/Plannr.Tests.csproj" />

@@ -1,5 +1,6 @@
-using Plannr.Core.Extraction;
-using Plannr.Infrastructure.Llm;
+using Plannr.Services.DTOs;
+using Plannr.Services.Extraction;
+using Plannr.Services.Llm;
 
 namespace Plannr.Tests.Llm;
 

@@ -1,8 +1,8 @@
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
-using Plannr.Core.Interfaces;
 using Plannr.Scraping.Options;
 using Plannr.Scraping.Retrieval;
+using Plannr.Services.Interfaces;
 
 namespace Plannr.Scraping.DependencyInjection;
 

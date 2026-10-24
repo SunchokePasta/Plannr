@@ -1,9 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Plannr.Core.Options;
-using Plannr.Infrastructure.DependencyInjection;
-using Plannr.Infrastructure.Options;
 using Plannr.Scraping.Options;
+using Plannr.Services.DependencyInjection;
+using Plannr.Services.Options;
 
 namespace Plannr.Scraping.DependencyInjection;
 

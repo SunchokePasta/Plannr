@@ -5,8 +5,8 @@ using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using Microsoft.Extensions.Logging;
-using Plannr.Core.Extraction;
 using Plannr.Scraping.Options;
+using Plannr.Services.DTOs;
 
 namespace Plannr.Scraping.Retrieval;
 

@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Time.Testing;
-using Plannr.Core.Extraction;
-using Plannr.Core.Options;
+using Plannr.Services.DTOs;
+using Plannr.Services.Extraction;
+using Plannr.Services.Options;
 
 namespace Plannr.Tests.Extraction;
 

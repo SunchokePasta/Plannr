@@ -1,6 +1,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Plannr.Core.Diagnostics;
+using Plannr.Services.Diagnostics;
 using Plannr.Tests.Diagnostics;
 
 namespace Plannr.Tests.Api;

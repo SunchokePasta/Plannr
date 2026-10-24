@@ -1,7 +1,7 @@
 using System.Text.Json;
-using Plannr.Core.Extraction;
-using Plannr.Core.Interfaces;
 using Plannr.Eval;
+using Plannr.Services.DTOs;
+using Plannr.Services.Interfaces;
 
 namespace Plannr.Tests.Eval;
 

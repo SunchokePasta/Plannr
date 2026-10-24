@@ -1,6 +1,7 @@
 using System.Net;
-using Plannr.Infrastructure.Llm;
-using Plannr.Infrastructure.Options;
+using Plannr.Services.APIs;
+using Plannr.Services.DTOs;
+using Plannr.Services.Options;
 using Refit;
 
 namespace Plannr.Eval;

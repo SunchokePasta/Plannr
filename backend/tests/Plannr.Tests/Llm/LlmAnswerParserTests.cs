@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Plannr.Infrastructure.Llm;
+using Plannr.Services.Llm;
 
 namespace Plannr.Tests.Llm;
 

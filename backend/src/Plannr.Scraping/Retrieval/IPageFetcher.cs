@@ -1,5 +1,5 @@
-using Plannr.Core.Exceptions;
-using Plannr.Core.Extraction;
+using Plannr.Services.DTOs;
+using Plannr.Services.Exceptions;
 
 namespace Plannr.Scraping.Retrieval;
 
@@ -7,13 +7,14 @@ namespace Plannr.Scraping.Retrieval;
 public sealed record FetchedPage(Uri FinalUrl, int StatusCode, string Html, FetchMethod Method);
 
 /// <summary>
-/// Gets one page's HTML. An Infrastructure detail of WebPageRetriever (and,
-/// later, TikTok's page scraper), not a Core interface: the pipeline only
-/// cares about the RetrievedContent that comes out.
+/// Gets one page's HTML. A detail of WebPageRetriever (and, later, TikTok's
+/// page scraper) inside Plannr.Scraping, not a shared interface in
+/// Plannr.Services: the pipeline only cares about the RetrievedContent that
+/// comes out.
 /// </summary>
 public interface IPageFetcher
 {
-    /// <exception cref="Core.Exceptions.ContentUnavailableException">
+    /// <exception cref="ContentUnavailableException">
     /// Not found, blocked, not HTML, too large, or timed out.
     /// </exception>
     /// <exception cref="OperationCanceledException">The caller cancelled; passed through untouched.</exception>

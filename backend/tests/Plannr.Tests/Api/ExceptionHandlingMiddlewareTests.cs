@@ -6,8 +6,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Plannr.Api.Middleware;
 using Plannr.Api.Models;
-using Plannr.Core.Diagnostics;
-using Plannr.Core.Exceptions;
+using Plannr.Services.Diagnostics;
+using Plannr.Services.Exceptions;
 using Plannr.Tests.Diagnostics;
 
 namespace Plannr.Tests.Api;

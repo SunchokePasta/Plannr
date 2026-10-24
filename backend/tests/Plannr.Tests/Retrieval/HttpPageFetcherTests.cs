@@ -1,9 +1,9 @@
 using System.Net;
 using System.Text;
-using Plannr.Core.Exceptions;
-using Plannr.Core.Extraction;
 using Plannr.Scraping.Options;
 using Plannr.Scraping.Retrieval;
+using Plannr.Services.DTOs;
+using Plannr.Services.Exceptions;
 
 namespace Plannr.Tests.Retrieval;
 

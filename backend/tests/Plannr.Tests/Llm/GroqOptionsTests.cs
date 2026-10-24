@@ -1,6 +1,6 @@
 using System.Text.Json;
-using Plannr.Infrastructure.Llm;
-using Plannr.Infrastructure.Options;
+using Plannr.Services.DTOs;
+using Plannr.Services.Options;
 
 namespace Plannr.Tests.Llm;
 

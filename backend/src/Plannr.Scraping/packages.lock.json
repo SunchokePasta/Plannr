@@ -205,19 +205,12 @@
         "resolved": "5.0.0",
         "contentHash": "dMkqfy2el8A8/I76n2Hi1oBFEbG1SfxD2l5nhwXV3XjlnOmwxJlQbYpJH4W51odnU9sARCSAgv7S3CyAFMkpYg=="
       },
-      "plannr.core": {
-        "type": "Project",
-        "dependencies": {
-          "Microsoft.Extensions.Logging.Abstractions": "[10.0.13, )"
-        }
-      },
-      "plannr.infrastructure": {
+      "plannr.services": {
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.Configuration.Binder": "[10.0.13, )",
           "Microsoft.Extensions.Http": "[10.0.13, )",
           "Microsoft.Extensions.Logging.Abstractions": "[10.0.13, )",
-          "Plannr.Core": "[1.0.0, )",
           "Refit.HttpClientFactory": "[16.4.0, )",
           "Serilog": "[4.4.0, )",
           "Serilog.Sinks.Console": "[6.1.1, )",

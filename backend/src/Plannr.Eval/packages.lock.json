@@ -407,33 +407,25 @@
         "resolved": "10.0.13",
         "contentHash": "DkNjtQyPR5Ud/zHnWHdsOuKbFRL9nIC92Q76z0NmHVDoQm40toLtsGFTIWq7toBoVa6fo/DInL3PLxY3Asixyw=="
       },
-      "plannr.core": {
-        "type": "Project",
-        "dependencies": {
-          "Microsoft.Extensions.Logging.Abstractions": "[10.0.13, )"
-        }
-      },
-      "plannr.infrastructure": {
-        "type": "Project",
-        "dependencies": {
-          "Microsoft.Extensions.Configuration.Binder": "[10.0.13, )",
-          "Microsoft.Extensions.Http": "[10.0.13, )",
-          "Microsoft.Extensions.Logging.Abstractions": "[10.0.13, )",
-          "Plannr.Core": "[1.0.0, )",
-          "Refit.HttpClientFactory": "[16.4.0, )",
-          "Serilog": "[4.4.0, )",
-          "Serilog.Sinks.Console": "[6.1.1, )",
-          "Serilog.Sinks.File": "[7.0.0, )"
-        }
-      },
       "plannr.scraping": {
         "type": "Project",
         "dependencies": {
           "AngleSharp": "[1.8.5, )",
           "Microsoft.Extensions.Http": "[10.0.13, )",
           "Microsoft.Playwright": "[1.64.0, )",
-          "Plannr.Core": "[1.0.0, )",
-          "Plannr.Infrastructure": "[1.0.0, )"
+          "Plannr.Services": "[1.0.0, )"
+        }
+      },
+      "plannr.services": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.Extensions.Configuration.Binder": "[10.0.13, )",
+          "Microsoft.Extensions.Http": "[10.0.13, )",
+          "Microsoft.Extensions.Logging.Abstractions": "[10.0.13, )",
+          "Refit.HttpClientFactory": "[16.4.0, )",
+          "Serilog": "[4.4.0, )",
+          "Serilog.Sinks.Console": "[6.1.1, )",
+          "Serilog.Sinks.File": "[7.0.0, )"
         }
       }
     }

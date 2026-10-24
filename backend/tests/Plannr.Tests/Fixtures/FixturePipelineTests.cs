@@ -1,10 +1,12 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Time.Testing;
-using Plannr.Core.Extraction;
-using Plannr.Core.Interfaces;
-using Plannr.Core.Options;
 using Plannr.Scraping.Options;
 using Plannr.Scraping.Retrieval;
+using Plannr.Services.DTOs;
+using Plannr.Services.Extraction;
+using Plannr.Services.Interfaces;
+using Plannr.Services.Options;
+using Plannr.Services.Services;
 
 namespace Plannr.Tests.Fixtures;
 

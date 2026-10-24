@@ -1,5 +1,6 @@
-using Plannr.Core.Extraction;
-using Plannr.Core.Exceptions;
+using Plannr.Services.DTOs;
+using Plannr.Services.Exceptions;
+using Plannr.Services.Services;
 
 namespace Plannr.Tests.Extraction;
 

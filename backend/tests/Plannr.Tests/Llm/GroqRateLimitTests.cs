@@ -1,5 +1,5 @@
 using System.Net.Http.Headers;
-using Plannr.Infrastructure.Llm;
+using Plannr.Services.Llm;
 
 namespace Plannr.Tests.Llm;
 
