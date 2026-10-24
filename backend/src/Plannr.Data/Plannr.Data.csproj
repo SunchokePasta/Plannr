@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Everything that touches MySQL: the EF Core context, the entities and
+    their mappings, the repositories and (later) the migrations. Only
+    Plannr.Api references this project (D41): the Worker reaches the
+    database through the API's /internal endpoints, so no other program
+    can open a connection of its own, even by mistake.
+  -->
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Plannr.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Plannr.Core\Plannr.Core.csproj" />
+  </ItemGroup>
+
+</Project>

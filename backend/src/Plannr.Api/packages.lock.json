@@ -151,6 +151,12 @@
       "plannr.core": {
         "type": "Project"
       },
+      "plannr.data": {
+        "type": "Project",
+        "dependencies": {
+          "Plannr.Core": "[1.0.0, )"
+        }
+      },
       "plannr.infrastructure": {
         "type": "Project",
         "dependencies": {

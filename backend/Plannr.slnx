@@ -2,6 +2,7 @@
   <Folder Name="/src/">
     <Project Path="src/Plannr.Api/Plannr.Api.csproj" />
     <Project Path="src/Plannr.Core/Plannr.Core.csproj" />
+    <Project Path="src/Plannr.Data/Plannr.Data.csproj" />
     <Project Path="src/Plannr.Eval/Plannr.Eval.csproj" />
     <Project Path="src/Plannr.Infrastructure/Plannr.Infrastructure.csproj" />
   </Folder>

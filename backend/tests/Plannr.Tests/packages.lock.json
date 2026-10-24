@@ -610,6 +610,7 @@
         "type": "Project",
         "dependencies": {
           "Plannr.Core": "[1.0.0, )",
+          "Plannr.Data": "[1.0.0, )",
           "Plannr.Infrastructure": "[1.0.0, )",
           "Serilog.AspNetCore": "[10.0.0, )"
         }
@@ -618,6 +619,12 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.Extensions.Logging.Abstractions": "[10.0.13, )"
+        }
+      },
+      "plannr.data": {
+        "type": "Project",
+        "dependencies": {
+          "Plannr.Core": "[1.0.0, )"
         }
       },
       "plannr.eval": {
