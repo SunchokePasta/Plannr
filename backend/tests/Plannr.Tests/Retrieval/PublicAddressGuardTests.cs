@@ -1,5 +1,5 @@
 using System.Net;
-using Plannr.Infrastructure.Retrieval;
+using Plannr.Scraping.Retrieval;
 
 namespace Plannr.Tests.Retrieval;
 

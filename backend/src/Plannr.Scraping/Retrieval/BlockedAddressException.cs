@@ -1,4 +1,4 @@
-namespace Plannr.Infrastructure.Retrieval;
+namespace Plannr.Scraping.Retrieval;
 
 /// <summary>
 /// A shared link pointed (directly, by DNS, or through a redirect) at an

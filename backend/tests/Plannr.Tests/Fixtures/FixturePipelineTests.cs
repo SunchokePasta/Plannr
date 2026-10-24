@@ -3,8 +3,8 @@ using Microsoft.Extensions.Time.Testing;
 using Plannr.Core.Extraction;
 using Plannr.Core.Interfaces;
 using Plannr.Core.Options;
-using Plannr.Infrastructure.Options;
-using Plannr.Infrastructure.Retrieval;
+using Plannr.Scraping.Options;
+using Plannr.Scraping.Retrieval;
 
 namespace Plannr.Tests.Fixtures;
 

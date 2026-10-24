@@ -1,8 +1,8 @@
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging.Abstractions;
 using Plannr.Core.Extraction;
-using Plannr.Infrastructure.Options;
-using Plannr.Infrastructure.Retrieval;
+using Plannr.Scraping.Options;
+using Plannr.Scraping.Retrieval;
 
 namespace Plannr.Tests.Retrieval;
 

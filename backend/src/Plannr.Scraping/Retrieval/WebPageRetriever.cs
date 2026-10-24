@@ -1,11 +1,11 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Plannr.Core.Extraction;
 using Plannr.Core.Diagnostics;
+using Plannr.Core.Extraction;
 using Plannr.Core.Interfaces;
-using Plannr.Infrastructure.Options;
+using Plannr.Scraping.Options;
 
-namespace Plannr.Infrastructure.Retrieval;
+namespace Plannr.Scraping.Retrieval;
 
 /// <summary>
 /// Event, ticket and general web pages: fetch the HTML over plain HTTP and

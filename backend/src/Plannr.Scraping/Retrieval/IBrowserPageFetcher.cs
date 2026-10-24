@@ -1,4 +1,4 @@
-namespace Plannr.Infrastructure.Retrieval;
+namespace Plannr.Scraping.Retrieval;
 
 /// <summary>
 /// An <see cref="IPageFetcher"/> that runs the page's JavaScript before

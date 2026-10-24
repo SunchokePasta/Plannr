@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Plannr.Core\Plannr.Core.csproj" />
     <ProjectReference Include="..\Plannr.Infrastructure\Plannr.Infrastructure.csproj" />
+    <ProjectReference Include="..\Plannr.Scraping\Plannr.Scraping.csproj" />
   </ItemGroup>
 
   <ItemGroup>

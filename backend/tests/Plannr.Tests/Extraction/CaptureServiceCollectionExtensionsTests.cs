@@ -2,7 +2,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Plannr.Core.Extraction;
 using Plannr.Core.Interfaces;
-using Plannr.Infrastructure.DependencyInjection;
+using Plannr.Infrastructure.Options;
+using Plannr.Scraping.DependencyInjection;
 
 namespace Plannr.Tests.Extraction;
 
@@ -23,6 +24,7 @@ public sealed class CaptureServiceCollectionExtensionsTests
         await using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
 
         Assert.IsType<ExtractionPipeline>(provider.GetRequiredService<IExtractionPipeline>());
+        Assert.IsType<LinkClassifier>(provider.GetRequiredService<ILinkClassifier>());
     }
 
     [Fact]

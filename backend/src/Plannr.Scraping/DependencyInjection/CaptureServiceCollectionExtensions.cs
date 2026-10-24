@@ -1,12 +1,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Plannr.Core.Extraction;
-using Plannr.Core.Interfaces;
 using Plannr.Core.Options;
+using Plannr.Infrastructure.DependencyInjection;
 using Plannr.Infrastructure.Options;
+using Plannr.Scraping.Options;
 
-namespace Plannr.Infrastructure.DependencyInjection;
+namespace Plannr.Scraping.DependencyInjection;
 
 public static class CaptureServiceCollectionExtensions
 {
@@ -26,16 +25,5 @@ public static class CaptureServiceCollectionExtensions
             .AddPlannrRetrieval(retrieval)
             .AddPlannrLlm(groq)
             .AddPlannrExtraction(extraction);
-    }
-
-    /// <summary>The normaliser and pipeline on their own, for callers that register retrieval and the LLM themselves.</summary>
-    public static IServiceCollection AddPlannrExtraction(this IServiceCollection services, ExtractionOptions options)
-    {
-        services.AddSingleton(options);
-        services.TryAddSingleton(TimeProvider.System);
-        services.AddSingleton<CardNormaliser>();
-        services.AddTransient<IExtractionPipeline, ExtractionPipeline>();
-
-        return services;
     }
 }

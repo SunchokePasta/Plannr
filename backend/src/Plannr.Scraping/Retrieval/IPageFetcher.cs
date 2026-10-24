@@ -1,6 +1,7 @@
+using Plannr.Core.Exceptions;
 using Plannr.Core.Extraction;
 
-namespace Plannr.Infrastructure.Retrieval;
+namespace Plannr.Scraping.Retrieval;
 
 /// <summary>A page's HTML and where it really came from, after redirects.</summary>
 public sealed record FetchedPage(Uri FinalUrl, int StatusCode, string Html, FetchMethod Method);

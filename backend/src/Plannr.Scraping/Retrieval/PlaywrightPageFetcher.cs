@@ -1,11 +1,11 @@
 using System.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Playwright;
-using Plannr.Core.Extraction;
 using Plannr.Core.Exceptions;
-using Plannr.Infrastructure.Options;
+using Plannr.Core.Extraction;
+using Plannr.Scraping.Options;
 
-namespace Plannr.Infrastructure.Retrieval;
+namespace Plannr.Scraping.Retrieval;
 
 /// <summary>
 /// Loads a page in headless Chromium so its JavaScript runs, then hands

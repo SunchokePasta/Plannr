@@ -1,8 +1,8 @@
-using Plannr.Core.Extraction;
 using Plannr.Core.Exceptions;
-using Plannr.Infrastructure.Options;
+using Plannr.Core.Extraction;
+using Plannr.Scraping.Options;
 
-namespace Plannr.Infrastructure.Retrieval;
+namespace Plannr.Scraping.Retrieval;
 
 /// <summary>
 /// A plain GET. The HttpClient it is given is configured in

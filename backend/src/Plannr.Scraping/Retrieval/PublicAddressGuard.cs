@@ -2,7 +2,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
 
-namespace Plannr.Infrastructure.Retrieval;
+namespace Plannr.Scraping.Retrieval;
 
 /// <summary>
 /// Stops Server-Side Request Forgery (SSRF). Plannr fetches whatever URL a

@@ -2,12 +2,6 @@
   "version": 1,
   "dependencies": {
     "net10.0": {
-      "AngleSharp": {
-        "type": "Direct",
-        "requested": "[1.8.5, )",
-        "resolved": "1.8.5",
-        "contentHash": "BUgFIpmkjwMPi6QneHUHaprjUOGSXoWEF/xi/2seHCpnI8XMHACNiC09rn9qL8jbxrP8jWyJ3DnOjsGvXWNGmw=="
-      },
       "Microsoft.Extensions.Configuration.Binder": {
         "type": "Direct",
         "requested": "[10.0.13, )",
@@ -39,16 +33,6 @@
         "contentHash": "aSZEhEig4fvNiw2zs8Z6NyDlniKtq6YjcF3DyHuqTEHcZ2VKA/6itMPZ+dW+yWABWExlDcQwwdbqX1Rcb7W8WQ==",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.13"
-        }
-      },
-      "Microsoft.Playwright": {
-        "type": "Direct",
-        "requested": "[1.64.0, )",
-        "resolved": "1.64.0",
-        "contentHash": "Bf+FpWu5tYpNCSYtSJLWLMYcDoN/qVjCoX8BNLNyLtqzlS1/zQFklMB2g0NEkebrVUpvrdV/D/zQMUAG4CZFGg==",
-        "dependencies": {
-          "Microsoft.Bcl.AsyncInterfaces": "6.0.0",
-          "System.ComponentModel.Annotations": "5.0.0"
         }
       },
       "Refit.HttpClientFactory": {
@@ -85,11 +69,6 @@
         "dependencies": {
           "Serilog": "4.2.0"
         }
-      },
-      "Microsoft.Bcl.AsyncInterfaces": {
-        "type": "Transitive",
-        "resolved": "6.0.0",
-        "contentHash": "UcSjPsst+DfAdJGVDsu346FX0ci0ah+lw3WRtn18NUwEqRt70HaOQ7lI72vy3+1LxtqI3T5GWwV39rQSrCzAeg=="
       },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
@@ -205,11 +184,6 @@
         "dependencies": {
           "ReactiveUI.Primitives": "9.0.0"
         }
-      },
-      "System.ComponentModel.Annotations": {
-        "type": "Transitive",
-        "resolved": "5.0.0",
-        "contentHash": "dMkqfy2el8A8/I76n2Hi1oBFEbG1SfxD2l5nhwXV3XjlnOmwxJlQbYpJH4W51odnU9sARCSAgv7S3CyAFMkpYg=="
       },
       "plannr.core": {
         "type": "Project",

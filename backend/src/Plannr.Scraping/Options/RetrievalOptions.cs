@@ -1,6 +1,6 @@
 using Plannr.Core.Options;
 
-namespace Plannr.Infrastructure.Options;
+namespace Plannr.Scraping.Options;
 
 /// <summary>
 /// How shared pages are fetched and read, bound from the "Retrieval"

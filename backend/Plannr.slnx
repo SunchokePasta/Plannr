@@ -5,6 +5,7 @@
     <Project Path="src/Plannr.Data/Plannr.Data.csproj" />
     <Project Path="src/Plannr.Eval/Plannr.Eval.csproj" />
     <Project Path="src/Plannr.Infrastructure/Plannr.Infrastructure.csproj" />
+    <Project Path="src/Plannr.Scraping/Plannr.Scraping.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Plannr.Tests/Plannr.Tests.csproj" />

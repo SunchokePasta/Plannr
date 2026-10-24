@@ -6,9 +6,9 @@ using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using Microsoft.Extensions.Logging;
 using Plannr.Core.Extraction;
-using Plannr.Infrastructure.Options;
+using Plannr.Scraping.Options;
 
-namespace Plannr.Infrastructure.Retrieval;
+namespace Plannr.Scraping.Retrieval;
 
 /// <summary>
 /// Reads an HTML page into <see cref="RetrievedContent"/>: Open Graph tags,

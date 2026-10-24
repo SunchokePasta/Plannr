@@ -3,13 +3,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
-using Plannr.Core.Extraction;
 using Plannr.Core.Diagnostics;
 using Plannr.Core.Exceptions;
+using Plannr.Core.Extraction;
 using Plannr.Core.Interfaces;
-using Plannr.Infrastructure.DependencyInjection;
 using Plannr.Infrastructure.Options;
-using Plannr.Infrastructure.Retrieval;
+using Plannr.Scraping.DependencyInjection;
+using Plannr.Scraping.Options;
+using Plannr.Scraping.Retrieval;
 using Plannr.Tests.Diagnostics;
 
 namespace Plannr.Tests.Retrieval;
@@ -156,7 +157,6 @@ public sealed class WebPageRetrieverTests : IDisposable
         var services = new ServiceCollection().AddLogging().AddPlannrRetrieval(options);
         using var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateOnBuild = true });
 
-        Assert.IsType<LinkClassifier>(provider.GetRequiredService<ILinkClassifier>());
         Assert.Equal(SourceType.WebPage, provider.GetRequiredService<IContentRetriever>().Handles);
         Assert.Equal(browserFallback, provider.GetService<IBrowserPageFetcher>() is not null);
     }

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Turning a shared link into RetrievedContent: HTTP fetching, headless
+    Chromium (Playwright), the SSRF guard and the HTML parser (D12). Only
+    the Worker and Eval reference it, so the API carries no browser code
+    or Playwright's ~130 MB driver, and a crashed browser can't take the
+    API down.
+  -->
+
+  <ItemGroup>
+    <ProjectReference Include="..\Plannr.Core\Plannr.Core.csproj" />
+    <ProjectReference Include="..\Plannr.Infrastructure\Plannr.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Lets the tests use internal test hooks such as PlaywrightPageFetcher's request filter. -->
+    <InternalsVisibleTo Include="Plannr.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AngleSharp" Version="1.8.5" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.13" />
+    <PackageReference Include="Microsoft.Playwright" Version="1.64.0" />
+  </ItemGroup>
+
+</Project>

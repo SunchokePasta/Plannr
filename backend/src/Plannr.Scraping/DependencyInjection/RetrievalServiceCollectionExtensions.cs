@@ -1,11 +1,10 @@
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
-using Plannr.Core.Extraction;
 using Plannr.Core.Interfaces;
-using Plannr.Infrastructure.Options;
-using Plannr.Infrastructure.Retrieval;
+using Plannr.Scraping.Options;
+using Plannr.Scraping.Retrieval;
 
-namespace Plannr.Infrastructure.DependencyInjection;
+namespace Plannr.Scraping.DependencyInjection;
 
 public static class RetrievalServiceCollectionExtensions
 {
@@ -17,7 +16,6 @@ public static class RetrievalServiceCollectionExtensions
     public static IServiceCollection AddPlannrRetrieval(this IServiceCollection services, RetrievalOptions options)
     {
         services.AddSingleton(options);
-        services.AddSingleton<ILinkClassifier, LinkClassifier>();
         services.AddSingleton<HtmlContentParser>();
 
         services
