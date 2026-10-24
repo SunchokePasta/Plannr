@@ -42,8 +42,14 @@ by `structure.json`.
 | 10a-10c | `4fc47be`, `5bb230c`, `b73ed6f` | `structure.json` + `StructureManifestTests`; placeholders for backend, data pool, mobile, infra; `structure.md` (CI run `39767569291` green) |
 | 5f | `01c65be` | Mangled-key check at startup; `models` 401 message; `qwen/qwen3.8-27b` verified as vision model |
 | docs | `aa98c24` | `issues-log.md` (backfilled); your 22 Oct answers recorded (D12, D30, D33-D39); M2 plan (CI run `39770985370` green) |
-| 9e | (local) | CI runners pinned to `ubuntu-24.04` (D31) |
-| docs | (local) | `architecture.md`: overview + 12 detail diagrams (also published as a page); interface rule D40 with 4 planned interface stubs |
+| 9e | `3ec6eea` | CI runners pinned to `ubuntu-24.04` (D31) (CI run `40117106128` green) |
+| docs | `970ebef`..`1afeba3` | `architecture.md`: overview + detail diagrams, glossary, numbered parts (also published as a page); interface rule D40 with 4 planned interface stubs |
+| 11a | `58a3049` | `Capture/` folders renamed `Extraction/` (issue #32); `StructureManifestTests` checks the paths stub comments name |
+| 11b | `fdd610e` | `Plannr.Data`: entities, DbContext, repositories (placeholders), referenced by the API only (D41) |
+| 11c | `53a74af` | `Plannr.Scraping`: page fetching, Chromium, SSRF guard (D12, done early) |
+| 11d | `2561476` | Core + Infrastructure merged into `Plannr.Services`, with Applr's folders (D41) |
+| 11e | `9dfe350` | `ArchitectureTests`: network calls only in `APIs/`, approved packages, agreed project references (D42) |
+| 11f | (this) | Docs for the new layout; D37 decided (nudge and sweep, API owns the database) |
 
 ## What's left, in order
 
@@ -56,7 +62,7 @@ labelling.
 |---|---|---|
 | **M2** | Data pool tooling in Eval: `snapshot` (save pages, which expire), a labels file, `score` (G3 per link type; LLM failures and browser fallbacks reported separately) | P3 (6 Nov), P4, G3 |
 | **M3** | API skeleton: EF Core + MySQL (docker-compose), Identity + JWT, `ActivityCard` + flags, `/cards`, OpenAPI document; middleware 404/403/409 arms | Everything after |
-| **M4** | Capture loop: `POST /captures` → Captures table (job queue) → **Plannr.Worker** → card → SignalR; rate limiting and caching (D10); Worker error boundary | The share → card flow |
+| **M4** | Capture loop: `POST /captures` → Captures table → the two hand-offs (nudge and sweep, D37) → **Plannr.Worker** → card → SignalR; rate limiting and caching (D10); Worker error boundary. Skeleton with TODOs first (`docs/guides/hand-offs.md`) | The share → card flow |
 | **M5** | Mobile shell: Expo dev build (EAS), login, generated API client, wishlist, card view/edit, **share intent** on your phone | The flow on Android |
 | **M6** | TikTok (oEmbed, then location tag via Playwright); screenshots end to end from the app | TikTok + screenshot Musts |
 | **M7** | Groups, invites (deep link), plans, yes/no responses, confirm, push notifications | Group-planning Musts |

@@ -14,11 +14,13 @@ for design choices awaiting review.
 backend/
   Directory.Build.props    shared build settings (net10.0, nullable, warnings as errors)
   Plannr.slnx
-  src/Plannr.Core          domain: models, interfaces, ExtractionPipeline, JSON-LD mapper, normaliser
-  src/Plannr.Infrastructure page fetching (HTTP + Playwright), Groq client, logging setup, DI wiring
+  src/Plannr.Services      shared by every program: extraction pipeline, Groq client, DTOs,
+                           interfaces, options, exceptions, logging setup (Applr.Services' folders)
+  src/Plannr.Scraping      page fetching: HTTP, headless Chromium, the SSRF guard (Worker and Eval only)
+  src/Plannr.Data          MySQL: entities, DbContext, repositories (the API only)
   src/Plannr.Api           ASP.NET Core API (so far: exception middleware and /health)
   src/Plannr.Eval          console tool: run extraction on a link or screenshot
-  tests/Plannr.Tests       xUnit
+  tests/Plannr.Tests       xUnit, including the architecture tests that keep this layout honest
 docs/                      progress and decision logs
 ```
 

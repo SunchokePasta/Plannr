@@ -38,28 +38,30 @@ the placeholder job at the end of `ci.yml`.
 
 backend/                          .NET 10 solution (Plannr.slnx, global.json, Directory.Build.props)
   src/
-    Plannr.Core/                  domain: no outside-world code
-      Extraction/                 ● pipeline, JSON-LD mapper, normaliser, parsers   ○ CaptureService [M4]
-      Diagnostics/ Options/       ● ErrorReference, AppOptionsBase, ExtractionOptions
-      Entities/                   ○ ActivityCard, CardFieldFlag [M3] · Capture [M4] · Group, Plan, responses, DeviceToken [M7] · date options, Reminder [T2]
-      Interfaces/                 ● retriever/LLM/pipeline interfaces   ○ queue, notifications, repositories [M3-M7]
+    Plannr.Services/              shared by every program (Applr.Services' folders); no database, no browser
+      APIs/                       ● IGroqApi (Refit)   ○ IExpoPushApi [M7]: the only folder that makes network calls
+      DTOs/                       ● CardDraft, RetrievedContent, LlmCardFields, FieldFlag, Groq's request/response
+      Interfaces/                 ● retriever, LLM, pipeline, link classifier
+      Services/                   ● ExtractionPipeline, GroqLlmExtractor, LinkClassifier   ○ ExpoPushClient [M7]
+      Extraction/ Llm/            ● JSON-LD mapper, normaliser, date/price parsers · prompt, answer parser, rate-limit rules
+      Diagnostics/ Options/       ● ErrorReference, Serilog setup, options classes, GetValidated
       Exceptions/                 ● CaptureException family   ○ EntityNotFound, NotAllowed [M3]
-      Planning/                   ○ PlanService [M7] · DateSelector [T2]
-    Plannr.Infrastructure/        the outside world
+      DependencyInjection/        ● AddPlannrLlm, AddPlannrExtraction
+      Planning/                   ○ DateSelector [T2]
+    Plannr.Scraping/              page fetching; the Worker and Eval only, never the API
       Retrieval/                  ● HTTP + Playwright fetching, SSRF guard, HTML parser
                                   ○ rate limiter, cache [M4] · TikTok/ [M6] · BioLinkResolver, YouTube/ [T2]
-      Llm/                        ● Groq client, prompt, extractor, rate-limit rules
-      Diagnostics/ Options/       ● Serilog setup, settings classes   ○ JwtOptions [M3]
-      DependencyInjection/        ● AddPlannrCapture etc.   ○ AddPlannrData [M3]
-      Data/                       ○ PlannrDbContext, Configurations/, Repositories/ [M3-M7] · Migrations/ (generated)
-      Identity/                   ○ PlannrUser, JwtTokenService [M3]
-      Queue/                      ○ MySqlCaptureQueue [M4]
-      Notifications/              ○ ExpoPushClient [M7]
+      Options/ DependencyInjection/ ● RetrievalOptions · AddPlannrRetrieval, AddPlannrCapture (the whole pipeline)
+    Plannr.Data/                  MySQL; the API only (the Worker goes through the API)
+      Entities/                   ○ ActivityCard, CardFieldFlag, PlannrUser [M3] · Capture [M4] · Group, Plan, responses, DeviceToken [M7] · date options, Reminder [T2]
+      Configurations/ Repositories/ ○ PlannrDbContext, EF mappings, one repository per table [M3-M7] · Migrations/ (generated)
+      DependencyInjection/        ○ AddPlannrData [M3]
     Plannr.Api/                   ● exception middleware, /health   ○ Controllers/, Contracts/ [M3-M7] · Hubs/, Notifications/ [M4]
+                                  ○ Services/ (CaptureService [M4], JwtTokenService [M3], PlanService [M7]) · Options/JwtOptions [M3]
     Plannr.Worker/                ○ second program: capture jobs [M4], reminders [T2] (.csproj, Program.cs generated)
     Plannr.Eval/                  ● extract, models   ○ snapshot, score, DataPool/ [M2]
   tests/
-    Plannr.Tests/                 ● unit + browser integration tests, fixture pages, structure check
+    Plannr.Tests/                 ● unit + browser integration tests, fixture pages, structure check, architecture tests
     Plannr.Api.IntegrationTests/  ○ generated [M3]: API + real MySQL via Testcontainers
 
 mobile/                           Expo app (React Native, TypeScript), Android first
@@ -77,8 +79,8 @@ docs/                             ● progress.md, decisions.md, structure.md (t
 
 | Program | Kind | Runs where | Talks to |
 |---|---|---|---|
-| **Plannr.Api** | ASP.NET Core web API + SignalR hub | ECS Fargate (small) | MySQL, the phone, Expo push |
-| **Plannr.Worker** [M4] | .NET worker service | ECS Fargate (~2 GB, Chromium) | MySQL (job queue), shared pages, Groq, the API (how: open question) |
+| **Plannr.Api** | ASP.NET Core web API + SignalR hub | ECS Fargate (small) | MySQL (the only program that does), the phone, Expo push, the Worker (a nudge) |
+| **Plannr.Worker** [M4] | .NET worker service with one private endpoint | ECS Fargate (~2 GB, Chromium) | the API's internal endpoints (claims jobs, hands back results), shared pages, Groq |
 | **Plannr.Eval** | Console tool | Your laptop | Shared pages, Groq, the data pool |
 | **mobile** [M5] | Expo / React Native app | Android phone | Plannr.Api (REST + SignalR) |
 | **MySQL** [M3] | Database | Docker locally, RDS on AWS | |

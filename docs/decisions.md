@@ -48,9 +48,9 @@ The pipeline has two entry points, link and image, instead of an `ImageRetriever
 
 ## D11 · Instagram as a subclass of `UnsupportedLinkException` · agreed
 
-## D12 · Scraping moves into its own project at M4 · agreed
-- **Now:** Plannr.Api references Infrastructure, which references Playwright, so the API's build output carries Playwright's ~130 MB driver though the API never fetches a page.
-- **At M4,** when the Worker arrives: page fetching (HTTP + Playwright, the SSRF guard, the retrievers) moves into `Plannr.Infrastructure.Scraping`, referenced by the Worker and Eval only. The API keeps `LinkClassifier` (Core) for its instant "unsupported link" answer.
+## D12 · Scraping moves into its own project · agreed, done (11c)
+- **Before:** Plannr.Api referenced Infrastructure, which referenced Playwright, so the API's build output carried Playwright's ~130 MB driver though the API never fetches a page.
+- **Done in 11c (24 Oct), earlier than the planned M4,** as part of the layout change (D41): page fetching (HTTP + Playwright, the SSRF guard, the retrievers) is in `Plannr.Scraping`, referenced by the Worker and Eval only. The API keeps `LinkClassifier` (now in Plannr.Services) for its instant "unsupported link" answer.
 - **Why:** a smaller, faster-to-deploy API image with fewer packages to keep patched; and the plan's rule that a crashed browser mustn't take the API down becomes something the compiler enforces, since the API can't call the browser code at all.
 
 ## D14 · Refit instead of the OpenAI .NET SDK for Groq · review
@@ -102,7 +102,8 @@ A screenshot has no URL, so `RetrievedContent.SourceUrl` (and `CardDraft.SourceU
 - **Why:** the spec says the user completes the card by hand when extraction fails; a half-filled card is a better start than an empty one.
 - **For G3:** these cards will mostly score "not fully correct", which is honest. Eval should report LLM failures separately so a Groq outage isn't mistaken for poor extraction.
 
-## D24 · Core takes `Microsoft.Extensions.Logging.Abstractions` · review
+## D24 · Core takes `Microsoft.Extensions.Logging.Abstractions` · moot since 11d
+**No longer applies:** Core merged into Plannr.Services (D41), which has logging packages anyway. Kept for the history.
 - Core was meant to have no packages. The pipeline needs to write its one summary line and the LLM-failure warning; the abstractions package is interfaces only (no logging implementation), the standard choice for domain libraries.
 - **Alternative:** move `ExtractionPipeline` to Infrastructure, keeping Core package-free; it would then live away from the logic it orchestrates.
 
@@ -153,8 +154,16 @@ Meets the spec's "stored in the UK" for user data (UK GDPR section).
 ## D36 · `qwen/qwen3.8-27b` for both text and screenshots · review
 Groq's model list (22 Oct) has no model labelled for images. Qwen 3.8 was tested with a drawn event flyer and read every field correctly in ~1 s, so it is Eval's `Groq:VisionModel` as well as its text model. Re-check with `models` if Groq changes its line-up; a 404 now names the setting to change.
 
-## D37 · How the Worker tells the app a card is ready · question (recommendation changed)
-The phone's live connection (SignalR) is to the **API**; the card is made by the **Worker**, a separate program. Options:
+## D37 · How the Worker tells the app a card is ready · agreed (24 Oct): nudge and sweep, and only the API touches the database
+**Decided:** neither (a) nor (b) as written below, but a combination you chose after we went through them: **"nudge and sweep"**, with **only Plannr.Api touching MySQL** (D41). It covers both **hand-offs between the server and the worker**:
+- **Job hand-off** (a new capture → the worker): the API saves the capture, then *nudges* the worker (a fire-and-forget `POST /internal/wake`). The worker *claims* the job through the API (`POST /internal/jobs/claim`, an atomic `UPDATE ... LIMIT 1`, so two workers can't take the same one). A slow *sweep* (every ~45 s) catches any lost nudge. A claim is a lease: one whose worker went quiet past the lease is claimed again.
+- **Result hand-off** (a finished card → your phone): the worker posts the result to the API (`POST /internal/captures/{id}/result`, safe to repeat: a second copy changes nothing). The API saves it and announces it (SignalR, or Expo push when the app is closed); a slow announcement sweep catches anything whose announcement failed.
+- Every request between the programs takes milliseconds; the only slow part (the website and Groq) runs inside the worker. The internal endpoints are guarded by a shared secret header, compared in constant time.
+- **Why not (b) alone:** up to 2 s of delay and a query every 2 s for ever; the nudge makes the common case instant and the sweep keeps (b)'s "nothing is lost" property. **Why not (a) alone:** a lost call loses the announcement; the sweep fixes that.
+- **Cost:** two private endpoints and a secret to configure in each program; the worker listens on one private port.
+- Diagrams: `docs/architecture.md` §3-§4. How to build it, step by step: `docs/guides/hand-offs.md`.
+
+*The original question, as asked:* the phone's live connection (SignalR) is to the **API**; the card is made by the **Worker**, a separate program. Options:
 - **(a)** the Worker calls a private API endpoint ("capture 42 done");
 - **(b)** the API checks the Captures table every ~2 s for newly finished captures and tells the right user;
 - **(c)** a message broker (Redis) that both connect to.
@@ -174,6 +183,24 @@ Your rule, as in Applr: anything that reaches outside the program (web pages, Ch
 - **Already true** for page fetching, Chromium, Groq and the clock (see `docs/architecture.md` §7).
 - **One gap in built code:** `PublicAddressGuard` and `PlaywrightPageFetcher` call `Dns` directly. Planned `IHostResolver` (M4, with the scraping split).
 - **Planned Refit interfaces** added to `structure.json`: `IExpoPushApi` (M7), `ITikTokOEmbedApi` (M6), `IYouTubeDataApi` (T2).
+
+## D41 · Six projects: Services, Scraping, Data, Api, Worker, Eval · agreed (24 Oct)
+- **What:** `Plannr.Core` and `Plannr.Infrastructure` merged into **`Plannr.Services`**, laid out like `Applr.Services` (`APIs/`, `DTOs/`, `Interfaces/`, `Services/`, `Options/`, `Exceptions/`, `Diagnostics/`, plus `Extraction/` and `Llm/` for helpers, as Applr has `Cv/` and `Gmail/`). Page fetching is in **`Plannr.Scraping`** (D12). Everything MySQL is in **`Plannr.Data`**, referenced by **`Plannr.Api` only**: the Worker reaches the database through the API's internal endpoints (D37).
+- **Who references whom:** Api → Services, Data · Data → Services · Scraping → Services · Worker → Services, Scraping · Eval → Services, Scraping · Services → none of ours. `ArchitectureTests` fails on any other reference (D42).
+- **Why:** it's the layout you know from Applr; there's no more "is this Core or Infrastructure?"; and the two dangerous dependencies (MySQL, Chromium) each sit in a project that only the right programs reference, so the compiler stops the Worker opening a database connection or the API starting a browser.
+- **Why Data is its own project (one step away from Applr, which keeps its database code inside Applr.RestApi):** the API stays about HTTP and Data about SQL; the `DbContext` can be made `internal`, so controllers *have* to go through the repositories (D34) rather than querying it directly; and the database tests (two workers racing for one job) test Plannr.Data without starting the web server.
+- **What the merge gave up:** Core used to be the place where nothing made network calls, enforced by its packages. Inside Services that's now a rule, checked by D42's first test.
+- **Cost:** migrations need `--project Plannr.Data --startup-project Plannr.Api`.
+- **Undo:** the moves were scripted (11b-11d); the reverse is the same moves backwards.
+
+## D42 · Architecture tests police what the project boundaries can't · agreed (24 Oct)
+`tests/Plannr.Tests/Architecture/ArchitectureTests.cs`, in the normal unit-test run (so in CI):
+1. **Inside Plannr.Services, only `APIs/` opens network connections** (`HttpClient`, sockets, DNS, ...), plus `DependencyInjection/`, which configures clients without sending anything. Reading a failed call's result (`HttpStatusCode`, `HttpRequestException`, Refit's `ApiException`) is allowed everywhere.
+2. **Plannr.Services uses only approved packages**, each listed with why it's safe there, because rule 1 can't see inside a package that makes its own calls.
+3. **Project references match D41 exactly**; a new project must be added on purpose.
+- **A self-check** runs rule 1 over the test project, where `StubHttpHandler` must be caught, so the rule can't silently stop matching after a library upgrade. Checked by hand as well: a throwaway class calling `new HttpClient()` in `Extraction/` failed the test by name.
+- **Library:** `NetArchTest.eNhancedEdition` 1.4.5, the maintained fork of NetArchTest (whose last release was 2021), with the same simple API. It reads the compiled DLL, not the source, so it sees `new`, fields, parameters and lambdas. ArchUnitNET does the same with a heavier API.
+- **Limits:** it's a tripwire for honest mistakes, not a defence against tricks (reflection, loading code at runtime), and it trusts approved packages.
 
 ## D13 · Secrets never live in tracked files · agreed
 This repo is public. Keys and passwords go in `dotnet user-secrets` locally (stored in the user profile, outside the repo) and in SSM Parameter Store on AWS, never in a committed file. `.gitignore` also ignores every `appsettings.Development.json` and `appsettings.*.local.json` as a safety net. Test code uses obviously fake values that don't look like real key formats (so secret scanners don't false-alarm).

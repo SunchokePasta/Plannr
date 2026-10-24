@@ -60,6 +60,9 @@ site or service), *CI* (GitHub Actions), *tooling* (a command or script).
 | T7 | docs | A background CI watcher crashed on a DNS lookup failure on the laptop (network blip), so it never reported | Checked the run directly (green); watchers should retry network errors |
 | T8 | docs | Couldn't check the architecture page's diagrams render: the built-in browser isn't signed in to Claude, and I don't sign in for you | Opened it in your side panel to check by eye |
 | T9 | docs | The built-in browser's page tools refuse local files, so a local test copy couldn't be driven there either | Drove headless Chromium from a throwaway .NET script with Playwright (already installed for the tests); .NET 10 single-file scripts needed `JsonSerializerIsReflectionEnabledByDefault=true` for Playwright |
+| T10 | 11b | My move script's first run added `using` lines for names that only appeared in comments, and touched files the move didn't affect | Spotted reading `git status` before building; rolled back that one uncommitted run and changed the script to skip comments and strings and leave unaffected files alone |
+| T11 | 11d | The script still missed three things: a type used inside an interpolated string, an extension method declared over several lines in a file with Windows line endings, and a doc-comment link (`CardDraft` → `ActivityCategories.All`) | The first two failed the build and were fixed by hand; the third was found by a one-off build with XML documentation turned on (it checks those links), then fixed |
+| T12 | 11b-11d | Inline scripts run through the shell lose one backslash of each pair (Python escape warnings, a `sed` and a `tr` error) | Every path those scripts wrote was checked afterwards (they came out right); file edits that need backslashes go through the editor tool instead |
 
 ## Findings to carry into the data pool (behaviour, not bugs)
 
