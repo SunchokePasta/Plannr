@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using Microsoft.Extensions.Logging;
-using Plannr.Core.Capture;
+using Plannr.Core.Extraction;
 using Plannr.Infrastructure.Options;
 
 namespace Plannr.Infrastructure.Retrieval;

@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.Testing;
-using Plannr.Core.Capture;
+using Plannr.Core.Extraction;
 using Plannr.Core.Diagnostics;
 using Plannr.Core.Exceptions;
 using Plannr.Core.Interfaces;

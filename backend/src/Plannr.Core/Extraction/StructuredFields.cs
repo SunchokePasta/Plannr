@@ -1,4 +1,4 @@
-namespace Plannr.Core.Capture;
+namespace Plannr.Core.Extraction;
 
 /// <summary>
 /// What <see cref="JsonLdEventMapper"/> could read from a page's JSON-LD

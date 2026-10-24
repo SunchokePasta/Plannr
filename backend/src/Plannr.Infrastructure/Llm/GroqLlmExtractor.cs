@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
-using Plannr.Core.Capture;
+using Plannr.Core.Extraction;
 using Plannr.Core.Exceptions;
 using Plannr.Core.Interfaces;
 using Plannr.Infrastructure.Options;

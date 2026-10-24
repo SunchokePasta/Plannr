@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Plannr.Core.Capture;
+namespace Plannr.Core.Extraction;
 
 /// <summary>
 /// Reads the ISO 8601 shapes dates arrive in, from JSON-LD and from the

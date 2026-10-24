@@ -1,4 +1,4 @@
-namespace Plannr.Core.Capture;
+namespace Plannr.Core.Extraction;
 
 /// <summary>
 /// The fixed set of categories a card can have. Fixed so the wishlist can

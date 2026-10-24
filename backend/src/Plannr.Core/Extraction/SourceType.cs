@@ -1,4 +1,4 @@
-namespace Plannr.Core.Capture;
+namespace Plannr.Core.Extraction;
 
 /// <summary>
 /// What kind of thing was shared, decided from the URL alone (or "it's an

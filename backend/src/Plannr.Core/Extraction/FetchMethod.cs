@@ -1,4 +1,4 @@
-namespace Plannr.Core.Capture;
+namespace Plannr.Core.Extraction;
 
 /// <summary>
 /// How a page's HTML was obtained. Recorded on every capture so Eval can

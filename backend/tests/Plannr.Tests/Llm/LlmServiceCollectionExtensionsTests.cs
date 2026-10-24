@@ -45,10 +45,10 @@ public sealed class LlmServiceCollectionExtensionsTests
                 client => client.ConfigurePrimaryHttpMessageHandler(() => stub));
         using var provider = services.BuildServiceProvider();
 
-        var fields = await provider.GetRequiredService<ILlmExtractor>().ExtractAsync(new Plannr.Core.Capture.RetrievedContent
+        var fields = await provider.GetRequiredService<ILlmExtractor>().ExtractAsync(new Plannr.Core.Extraction.RetrievedContent
         {
             SourceUrl = new Uri("https://venue.example.com/e/1"),
-            SourceType = Plannr.Core.Capture.SourceType.WebPage,
+            SourceType = Plannr.Core.Extraction.SourceType.WebPage,
             BodyText = "Market, Sat"
         });
 

@@ -1,4 +1,4 @@
-namespace Plannr.Core.Capture;
+namespace Plannr.Core.Extraction;
 
 /// <summary>
 /// Where a card field's value came from. Recorded per field so Eval can

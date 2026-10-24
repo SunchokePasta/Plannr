@@ -1,7 +1,7 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Plannr.Core.Capture;
+namespace Plannr.Core.Extraction;
 
 /// <summary>A price read from text, in whole pence.</summary>
 /// <param name="CurrencyAssumed">No symbol or code was given, so GBP was assumed -- worth flagging.</param>

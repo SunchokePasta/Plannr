@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Time.Testing;
-using Plannr.Core.Capture;
+using Plannr.Core.Extraction;
 using Plannr.Core.Options;
 
-namespace Plannr.Tests.Capture;
+namespace Plannr.Tests.Extraction;
 
 public sealed class CardNormaliserTests
 {

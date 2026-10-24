@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
-using Plannr.Core.Capture;
+using Plannr.Core.Extraction;
 using Plannr.Core.Exceptions;
 using Plannr.Infrastructure.Options;
 using Plannr.Infrastructure.Retrieval;

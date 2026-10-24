@@ -1,6 +1,6 @@
-using Plannr.Core.Capture;
+using Plannr.Core.Extraction;
 
-namespace Plannr.Tests.Capture;
+namespace Plannr.Tests.Extraction;
 
 public sealed class JsonLdEventMapperTests
 {

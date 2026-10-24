@@ -1,6 +1,6 @@
 using Plannr.Core.Options;
 
-namespace Plannr.Core.Capture;
+namespace Plannr.Core.Extraction;
 
 /// <summary>
 /// Merges what was read about one item into a <see cref="CardDraft"/>, field

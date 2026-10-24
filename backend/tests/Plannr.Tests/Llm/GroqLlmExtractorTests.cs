@@ -2,7 +2,7 @@ using System.Net;
 using System.Text;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
-using Plannr.Core.Capture;
+using Plannr.Core.Extraction;
 using Plannr.Core.Exceptions;
 using Plannr.Infrastructure.Llm;
 using Plannr.Infrastructure.Options;

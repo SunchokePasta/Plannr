@@ -39,7 +39,7 @@ the placeholder job at the end of `ci.yml`.
 backend/                          .NET 10 solution (Plannr.slnx, global.json, Directory.Build.props)
   src/
     Plannr.Core/                  domain: no outside-world code
-      Capture/                    ● pipeline, JSON-LD mapper, normaliser, parsers   ○ CaptureService [M4]
+      Extraction/                 ● pipeline, JSON-LD mapper, normaliser, parsers   ○ CaptureService [M4]
       Diagnostics/ Options/       ● ErrorReference, AppOptionsBase, ExtractionOptions
       Entities/                   ○ ActivityCard, CardFieldFlag [M3] · Capture [M4] · Group, Plan, responses, DeviceToken [M7] · date options, Reminder [T2]
       Interfaces/                 ● retriever/LLM/pipeline interfaces   ○ queue, notifications, repositories [M3-M7]

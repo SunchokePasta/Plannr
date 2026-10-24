@@ -1,14 +1,14 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using Microsoft.Extensions.Time.Testing;
-using Plannr.Core.Capture;
+using Plannr.Core.Extraction;
 using Plannr.Core.Diagnostics;
 using Plannr.Core.Exceptions;
 using Plannr.Core.Interfaces;
 using Plannr.Core.Options;
 using Plannr.Tests.Diagnostics;
 
-namespace Plannr.Tests.Capture;
+namespace Plannr.Tests.Extraction;
 
 /// <summary>The real classifier, mapper and normaliser; fake retriever and LLM.</summary>
 [Collection(ErrorReferenceCollection.Name)]

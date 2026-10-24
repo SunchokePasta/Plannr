@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace Plannr.Tests.Structure;
 
@@ -12,7 +13,7 @@ namespace Plannr.Tests.Structure;
 /// data-pool/ placeholders are checked here too, because this is the test
 /// suite CI already runs on every push.
 /// </summary>
-public sealed class StructureManifestTests
+public sealed partial class StructureManifestTests
 {
     private const string ManifestPath = "docs/structure.json";
 
@@ -175,6 +176,38 @@ public sealed class StructureManifestTests
 
         AssertNone(problems, "Connections to things that don't exist:");
     }
+
+    /// <summary>
+    /// The paths a stub's comment names ("Connects to: backend/src/...") are
+    /// what someone reads when they come to build it, and nothing else checks
+    /// them: a folder rename once left six of them pointing at a folder that
+    /// was gone (issue #32).
+    /// </summary>
+    [Fact]
+    public void EveryPathAStubNames_PointsAtSomethingReal()
+    {
+        var listed = Entries.Select(e => e.Path).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var problems = new List<string>();
+
+        foreach (var stub in Entries.Where(e => e.Kind == "stub" && File.Exists(OnDisk(e.Path))))
+        {
+            foreach (Match match in RepoPath().Matches(File.ReadAllText(OnDisk(stub.Path))))
+            {
+                // A path that ends a sentence ("...in docs/structure.json.") keeps its full stop.
+                var target = match.Value.TrimEnd('.', '/');
+                if (!listed.Contains(target) && !File.Exists(OnDisk(target)) && !Directory.Exists(OnDisk(target)))
+                {
+                    problems.Add($"{stub.Path} names {target}: neither a list entry nor a file in the repo.");
+                }
+            }
+        }
+
+        AssertNone(problems, "Stub comments naming things that don't exist:");
+    }
+
+    /// <summary>A path from the repo root: starts with a top-level folder, then path characters.</summary>
+    [GeneratedRegex(@"(?<![\w/.-])(?:backend|mobile|infra|data-pool|docs|\.github)/[\w./-]+")]
+    private static partial Regex RepoPath();
 
     /// <summary>Every file in the repo (outside build output and tool folders) whose first line is a PLANNED marker.</summary>
     private static IEnumerable<string> PlaceholderFiles()

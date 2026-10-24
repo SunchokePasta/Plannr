@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Plannr.Core.Capture;
+using Plannr.Core.Extraction;
 using Plannr.Core.Diagnostics;
 using Plannr.Core.Interfaces;
 using Plannr.Infrastructure.Options;

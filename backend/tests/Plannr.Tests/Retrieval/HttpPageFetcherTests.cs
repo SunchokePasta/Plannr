@@ -1,6 +1,6 @@
 using System.Net;
 using System.Text;
-using Plannr.Core.Capture;
+using Plannr.Core.Extraction;
 using Plannr.Core.Exceptions;
 using Plannr.Infrastructure.Options;
 using Plannr.Infrastructure.Retrieval;

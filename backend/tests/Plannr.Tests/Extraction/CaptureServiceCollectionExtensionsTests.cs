@@ -1,10 +1,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Plannr.Core.Capture;
+using Plannr.Core.Extraction;
 using Plannr.Core.Interfaces;
 using Plannr.Infrastructure.DependencyInjection;
 
-namespace Plannr.Tests.Capture;
+namespace Plannr.Tests.Extraction;
 
 public sealed class CaptureServiceCollectionExtensionsTests
 {

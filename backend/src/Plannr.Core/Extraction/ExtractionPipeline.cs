@@ -5,7 +5,7 @@ using Plannr.Core.Exceptions;
 using Plannr.Core.Interfaces;
 using Plannr.Core.Options;
 
-namespace Plannr.Core.Capture;
+namespace Plannr.Core.Extraction;
 
 /// <summary>
 /// The whole capture, in order:

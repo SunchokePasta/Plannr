@@ -1,7 +1,7 @@
 using Plannr.Core.Exceptions;
 using Plannr.Core.Interfaces;
 
-namespace Plannr.Core.Capture;
+namespace Plannr.Core.Extraction;
 
 /// <summary>
 /// Decides a link's <see cref="SourceType"/> from its host alone. Lives in

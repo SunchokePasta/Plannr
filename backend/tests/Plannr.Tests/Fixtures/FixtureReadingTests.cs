@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 using Microsoft.Extensions.Logging.Abstractions;
-using Plannr.Core.Capture;
+using Plannr.Core.Extraction;
 using Plannr.Infrastructure.Options;
 using Plannr.Infrastructure.Retrieval;
 
