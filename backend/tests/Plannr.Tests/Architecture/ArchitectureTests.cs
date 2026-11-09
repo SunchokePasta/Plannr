@@ -144,7 +144,8 @@ public sealed class ArchitectureTests
             }
 
             var actual = Project(project!).Descendants("ProjectReference")
-                .Select(r => Path.GetFileNameWithoutExtension((string)r.Attribute("Include")!))
+                // .csproj files use backslashes on every OS, and on Linux those aren't separators.
+                .Select(r => Path.GetFileNameWithoutExtension(((string)r.Attribute("Include")!).Replace('\\', '/')))
                 .Order()
                 .ToArray();
 

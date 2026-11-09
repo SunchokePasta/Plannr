@@ -51,7 +51,8 @@ by `structure.json`.
 | 11e | `9dfe350` | `ArchitectureTests`: network calls only in `APIs/`, approved packages, agreed project references (D42) |
 | 11f | `aefad92` | Docs for the new layout; D37 decided (nudge and sweep, API owns the database) |
 | 12a | `856aed5` | The hand-off skeleton: contracts and Refit clients, `Plannr.Worker`, `TODO(H1.1)`-`(H7.2)`, 43 tests waiting on them (checked against a working version first); fixes #33, #34 |
-| 12b | (this) | `docs/guides/hand-offs.md` linked in; `architecture.md` §1-§7 redrawn for the chosen design (also republished); D43; issues #33-#36 |
+| 12b | `4b196d5` | `docs/guides/hand-offs.md` linked in; `architecture.md` §1-§7 redrawn for the chosen design (also republished); D43; issues #33-#36 (CI run `42688618858` red: issue #37) |
+| 12c | (this) | The architecture test reads project references correctly on Linux (issue #37) |
 
 ## What's left, in order
 
